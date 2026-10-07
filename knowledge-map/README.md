@@ -63,6 +63,7 @@ IDs are hierarchical (`<mission>.<collection>.<dataset>`, e.g. `euclid.q1.mer-mo
 
 - Euclid DR1 `released` (2026-10-21) comes from a search snippet only; verify it once DR1 is announced.
 - Whether SPHEREx QR2 still gets weekly ingest now that QR3 is live (`cadence`).
+- Whether live-service CI checks may query `/ibe/data/` (robots.txt disallows crawlers there). Until decided, check `browse` paths via their S3 mirror.
 
 ---
 
