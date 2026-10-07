@@ -59,6 +59,17 @@ IDs are hierarchical (`<mission>.<collection>.<dataset>`, e.g. `euclid.q1.mer-mo
 - **Dates:** `launch` is UTC. `released` may be `YYYY-MM` when sources give only the month.
 - **Citations:** no acknowledgement text is stored. Collection `overview` pages and DOIs carry it.
 
+## Validation
+
+`scripts/validate_facts.py` checks every access entry and link against live IRSA services. It runs on PRs that touch `knowledge-map/` and weekly. To run it locally from the repo root:
+
+```sh
+python3 -m venv .venv                 # first time only
+source .venv/bin/activate
+pip install pyyaml requests astroquery   # first time only
+python scripts/validate_facts.py      # add -v to list every check, not just problems
+```
+
 ## Open TODOs
 
 - Euclid DR1 `released` (2026-10-21) comes from a search snippet only; verify it once DR1 is announced.
