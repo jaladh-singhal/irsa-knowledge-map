@@ -1,0 +1,228 @@
+# SPHEREx @ IRSA. See ../README.md for rules and conventions.
+# S3 bucket nasa-irsa-spherex is in us-east-1.
+
+mission:
+  id: spherex
+  name: SPHEREx
+  aliases: [Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer]
+  agency: NASA
+  launch: 2025-03-12        # UTC (03:10). The help page says 11 Mar 2025, which is the US-local date of the same launch
+  wavelength_um: [0.75, 5.0]
+  coverage: all-sky, deeper at the ecliptic poles
+  archive_page: https://irsa.ipac.caltech.edu/Missions/spherex.html
+  status: active
+  as_of: 2026-10-05
+
+collections:
+  - id: spherex.qr3
+    name: Quick Release 3
+    aliases: [QR3]
+    kind: release
+    status: available
+    released: 2026-09
+    cadence: weekly
+    doi: 10.26131/IRSA662
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/overview_qr.html
+    notes:
+      - "Use caution combining with QR2 (different calibration)"
+      - "More R7 weeks expected with DR1 (late fall 2026, per the Explanatory Supplement)"
+    as_of: 2026-10-06
+    datasets:
+      - id: spherex.qr3.images
+        name: Spectral Image MEFs (wide)
+        type: image
+        description: Calibrated 2040x2040 spectral images, 6 per pointing
+        access:
+          - {via: sia, name: spherex_qr3, note: "~1 day lag after ingest"}
+          - {via: tap, name: spherex.plane, note: "no lag; join spherex.artifact"}
+          - {via: cutout}
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/"}
+          - {via: s3, name: "nasa-irsa-spherex/qr3/level2/"}
+          - {via: gui, name: SPHEREx Data Explorer}
+        files:
+          pattern: "level2/{planning_period}/l2b-v{version}-{proc_date}/{detector}/level2_{obs_id}D{detector}_spx_l2b-v{version}-{proc_date}.fits"
+        docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
+
+      - id: spherex.qr3.images-deep
+        name: Spectral Image MEFs (deep fields)
+        type: image
+        access:
+          - {via: sia, name: spherex_qr3_deep}
+
+      - id: spherex.qr3.epsf
+        name: Effective PSF (ePSF)
+        type: calibration
+        description: Per-detector ePSF; QR3 only (QR2 uses the legacy PSF extension)
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/"}
+          - {via: s3, name: "nasa-irsa-spherex/qr3/epsf/"}
+        files:
+          pattern: "epsf/cal-epsf-v{version}-{proc_date}/{detector}/epsf_D{detector}_spx_cal-epsf-v{version}-{proc_date}.fits"
+        docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
+
+      - id: spherex.qr3.calibration
+        name: Calibration and ancillary products
+        type: calibration
+        description: Per-detector calibration files (dark, gain, nonlinearity, spectral WCS, templates, ...)
+        access:
+          - {via: s3, name: "nasa-irsa-spherex/qr3/", note: "One prefix per product, e.g. dark/, spectral_wcs/, he_template/"}
+        docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
+
+  - id: spherex.qr2
+    name: Quick Release 2
+    aliases: [QR2]
+    kind: release
+    status: available
+    released: 2025-10
+    cadence: weekly          # TODO: confirm whether QR2 still gets weekly ingest now that QR3 is live
+    doi: 10.26131/IRSA652
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/overview_qr.html
+    notes:
+      - "Do not combine with QR1"
+      - "Use caution combining with QR3 (different calibration)"
+      - "Pipeline versions 6.4 to 6.5.6; see the PSF header known issue"
+    as_of: 2026-10-06
+    datasets:
+      - id: spherex.qr2.images
+        name: Spectral Image MEFs (wide)
+        type: image
+        description: Calibrated 2040x2040 spectral images, 6 per pointing
+        access:
+          - {via: sia, name: spherex_qr2, note: "~1 day lag after ingest"}
+          - {via: tap, name: spherex.plane, note: "no lag; join spherex.artifact"}
+          - {via: cutout}
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/"}
+          - {via: s3, name: "nasa-irsa-spherex/qr2/level2/"}
+          - {via: gui, name: SPHEREx Data Explorer}
+        files:
+          pattern: "level2/{planning_period}/l2b-v{version}-{proc_date}/{detector}/level2_{obs_id}D{detector}_spx_l2b-v{version}-{proc_date}.fits"
+        docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
+
+      - id: spherex.qr2.images-deep
+        name: Spectral Image MEFs (deep fields)
+        type: image
+        access:
+          - {via: sia, name: spherex_qr2_deep}
+
+      - id: spherex.qr2.calibration
+        name: Calibration and ancillary products
+        type: calibration
+        description: Per-detector calibration files (dark, gain, nonlinearity, spectral WCS, average PSF, ...)
+        access:
+          - {via: s3, name: "nasa-irsa-spherex/qr2/", note: "One prefix per product, e.g. average_psf/, dark/, spectral_wcs/"}
+        docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
+
+  - id: spherex.qr1
+    name: Quick Release 1
+    aliases: [QR1]
+    kind: release
+    # Explanatory Supplement v2.0 still says QR1 "will be available"; the QR overview says it was retired Feb 2026
+    status: retired
+    released: 2025-07
+    cadence: weekly
+    doi: 10.26131/IRSA629
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/overview_qr.html
+    notes: ["Do not combine with QR2"]
+    as_of: 2026-10-06
+
+  - id: spherex.dr1
+    name: Data Release 1
+    aliases: [DR1]
+    kind: release
+    status: planned
+    notes: ["R7 reprocessing of Surveys 1 and 2 (Explanatory Supplement)"]
+    # Not yet on any IRSA page; the Explanatory Supplement says "late fall 2026"
+    as_of: 2026-10-05
+
+  - id: spherex.splices
+    name: SPHEREx Target List of Ice Sources (SPLICES)
+    aliases: [SPLICES]
+    kind: ancillary
+    status: available
+    released:                # file is dated 20241107; release notes 2024-11-20
+    cadence: once
+    doi: 10.26131/IRSA554
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/
+    notes: ["Pre-launch community target list; source_id = SPHEREx Reference Catalog ID"]
+    as_of: 2026-10-06
+    datasets:
+      - id: spherex.splices.catalog
+        name: SPLICES v8.6
+        type: catalog
+        access:
+          - {via: gui, name: Gator, note: "Also via the IRSA catalog API"}
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/", note: "FITS file 20241107_SPLICESv8.6.fits.gz"}
+        docs:
+          - "https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/gator_docs/splices_colDescriptions.html"
+          - "https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/SPLICES_Release_Notes.pdf"
+
+  - id: spherex.3i-atlas
+    name: Comet 3I/ATLAS observations
+    kind: target_view
+    status: available
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/comet3iatlas/index.html
+    notes:
+      - "Extended source: do not use the Spectrophotometry Tool"
+      - "Visits in Aug and Dec 2025"
+    as_of: 2026-10-05
+    datasets:
+      - id: spherex.3i-atlas.observations
+        name: 3I/ATLAS observation list and images
+        type: image
+        access:
+          - {via: browse, name: obscore_3I_Atlas.vot, note: "ObsCore VOTable, linked from the overview page"}
+          - {via: script, name: "3IATLASImages-{wget,curl}.sh", note: "Linked from the overview page"}
+
+  - id: spherex.spectral-calibrations
+    name: Lab spectral calibration package
+    kind: ancillary
+    status: available
+    overview: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/spherex_spectral_calibrations.html
+    notes:
+      - "Detector coordinates are x-flipped for detectors 4 to 6"
+      - "Pipeline calibrations are described in the user guide, not here"
+    as_of: 2026-10-05
+    datasets:
+      - id: spherex.spectral-calibrations.package
+        name: Channel maps, response curves and band-center maps
+        type: calibration
+        description: Tar archive plus PDF
+        access:
+          # Folder spectral_files_20260812/ holds files named ..._202607.tar/.pdf
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/data/SPHEREx/docs/spherex_spectral_calibrations.html"}
+
+identifiers:
+  - {name: Planning Period, example: 2025W18_2B, description: "Survey plan, ~3.5 days"}
+  - {name: Observation ID, example: 2025W18_2B_0001_1, description: "Planning period + large slew + small slew"}
+  - {name: Detector, example: D3, description: "1-6, one per band"}
+  - {name: Version, example: l2b-v12, description: "Product version in paths and filenames"}
+  - {name: Processing Date, example: 2025-164, description: "Year and day of year of processing"}
+
+tools:
+  # The user guide calls it "SPHEREx Data Collection Explorer Spectral Image Search"
+  - {name: SPHEREx Data Explorer, url: "https://irsa.ipac.caltech.edu/applications/spherex", docs: "https://irsa.ipac.caltech.edu/onlinehelp/spherex/spherex/searching.html", use_for: "Spectral image search with MOC overlays and a deep-field toggle"}
+  - {name: Spectrophotometry Tool, url: "https://irsa.ipac.caltech.edu/applications/spherex/tool-spectrophotometry", docs: "https://irsa.ipac.caltech.edu/onlinehelp/spherex/spherex/sp.html", use_for: "Forced-photometry spectrum at known positions (max 20 sources)"}
+  - {name: Mosaic Tool, url: "https://irsa.ipac.caltech.edu/applications/spherex/tool-mosaic", use_for: "Custom multi-wavelength mosaic cubes"}
+  # The page's direct-URL example still uses the retired QR1-era /ibe/data/spherex/qr/ path
+  - {name: Cutout service, url: "https://irsa.ipac.caltech.edu/data/SPHEREx/docs/cutout_tool.html", use_for: "Cutouts via Data Explorer, direct URL (center/size) or Python"}
+  - {name: Moving Object Search Tool (MOST), url: "https://irsa.ipac.caltech.edu/applications/MOST", use_for: "Find SPHEREx images of moving objects"}
+
+known_issues:
+  - title: PSF extension header plane ordering
+    affects: [spherex.qr2, spherex.qr2.images]
+    status: fixed
+    fixed: 2026-03-31        # date from the erratum page; the mission page says 2026-04-10
+    how_to_tell: "Header VERSION 6.4-6.5.5 without '+psffix1'"
+    link: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/psfhdrerr.html
+
+tutorials:
+  - {title: "Introduction to SPHEREx Spectral Images", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/", uses: [spherex.qr3.images]}
+  - {title: "Download a collection of SPHEREx Spectral Image cutouts as a multi-extension FITS file", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-cutouts/", uses: [spherex.qr3.images, spherex.qr2.images]}
+  - {title: "Understanding and Extracting the ePSF Extension in a SPHEREx Cutout", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-psf/", uses: [spherex.qr3.epsf, spherex.qr2.images]}
+  - {title: "SPHEREx Source Discovery Tool IRSA Demo", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-source-discovery-tool-demo/", uses: [spherex.qr2.images]}
+  - {title: "Understanding and Analyzing SPHEREx Mosaic Cubes", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-mosaic/", uses: []}
+
+docs:
+  - {title: "SPHEREx Explanatory Supplement", url: "https://irsa.ipac.caltech.edu/data/SPHEREx/docs/SPHEREx_Expsupp_QR.pdf", kind: supplement, version: "2.0"}
+  - {title: "SPHEREx Archive User Guide", url: "https://caltech-ipac.github.io/spherex-archive-documentation/", kind: user_guide}
+  - {title: "SPHEREx Data Access", url: "https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-access", kind: user_guide}
