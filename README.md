@@ -7,6 +7,7 @@ irsa.yaml              # shared services (SIA, SSA, TAP, SCS, cutout, browse, s3
 missions/
   euclid.yaml          # ERO, Q1, Q2, DR1 (planned)
   spherex.yaml         # QR3, QR2, QR1 (retired), DR1 (planned), SPLICES, 3I/ATLAS, lab spectral calibrations
+scripts/               # validate_facts.py, discover_facts.py (see Validation)
 ```
 
 ## How the pieces connect
@@ -61,7 +62,7 @@ IDs are hierarchical (`<mission>.<collection>.<dataset>`, e.g. `euclid.q1.mer-mo
 
 ## Validation
 
-`scripts/validate_facts.py` checks every access entry and link against live IRSA services. It runs on PRs that touch `knowledge-map/` and weekly. To run it locally from the repo root:
+`scripts/validate_facts.py` checks every access entry and link against live IRSA services. It runs on PRs that touch `irsa.yaml` or `missions/`, and weekly. To run it locally from the repo root:
 
 ```sh
 python3 -m venv .venv                 # first time only

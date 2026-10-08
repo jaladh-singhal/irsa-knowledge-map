@@ -29,7 +29,7 @@ from pyvo.dal import DALAccessError
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-ROOT = Path(__file__).resolve().parent.parent / "knowledge-map"
+ROOT = Path(__file__).resolve().parent.parent
 IRSA = "https://irsa.ipac.caltech.edu"
 TIMEOUT = 60
 RECHECK_DELAY = 30  # seconds before re-checking failures

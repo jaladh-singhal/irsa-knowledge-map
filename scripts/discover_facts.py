@@ -18,7 +18,7 @@ import s3fs
 import yaml
 from astroquery.ipac.irsa import Irsa
 
-ROOT = Path(__file__).resolve().parent.parent / "knowledge-map"
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def load_missions():
@@ -73,7 +73,7 @@ def to_markdown(report):
     if not total:
         return f"Nothing new: every live collection, table and S3 prefix is in the knowledge map. {checked}\n"
     lines = [checked, (f"{total} item(s) IRSA lists that the knowledge map doesn't. Add each under the right "
-             "dataset's `access` in `knowledge-map/missions/<mission>.yaml`; it leaves this list on "
+             "dataset's `access` in `missions/<mission>.yaml`; it leaves this list on "
              "the next run.\n")]
     for mission, stubs in report.items():
         if stubs:

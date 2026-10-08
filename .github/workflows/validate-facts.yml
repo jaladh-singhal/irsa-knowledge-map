@@ -4,7 +4,8 @@ name: Validate facts against IRSA
 on:
   pull_request:
     paths:
-      - "knowledge-map/**"
+      - "irsa.yaml"
+      - "missions/**"
       - "scripts/validate_facts.py"
       - ".github/workflows/validate-facts.yml"
   schedule:
