@@ -26,7 +26,7 @@ collections:
     notes:
       - "Use caution combining with QR2 (different calibration)"
       - "More R7 weeks expected with DR1 (late fall 2026, per the Explanatory Supplement)"
-    as_of: 2026-10-06
+    as_of: 2026-10-07
     datasets:
       - id: spherex.qr3.images
         name: Spectral Image MEFs (wide)
@@ -35,6 +35,9 @@ collections:
         access:
           - {via: sia, name: spherex_qr3, note: "~1 day lag after ingest"}
           - {via: tap, name: spherex.plane, note: "no lag; join spherex.artifact"}
+          - {via: tap, name: spherex.artifact}
+          - {via: tap, name: spherex.observation}
+          - {via: tap, name: spherex.obscore}
           - {via: cutout}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/"}
           - {via: s3, name: "nasa-irsa-spherex/qr3/level2/"}
@@ -65,6 +68,7 @@ collections:
         type: calibration
         description: Per-detector calibration files (dark, gain, nonlinearity, spectral WCS, templates, ...)
         access:
+          - {via: tap, name: spherex.provenance_input, note: "Join tables for SPHEREx calibration files"}
           - {via: s3, name: "nasa-irsa-spherex/qr3/", note: "One prefix per product, e.g. dark/, spectral_wcs/, he_template/"}
         docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
 
@@ -81,7 +85,7 @@ collections:
       - "Do not combine with QR1"
       - "Use caution combining with QR3 (different calibration)"
       - "Pipeline versions 6.4 to 6.5.6; see the PSF header known issue"
-    as_of: 2026-10-06
+    as_of: 2026-10-07
     datasets:
       - id: spherex.qr2.images
         name: Spectral Image MEFs (wide)
@@ -90,6 +94,9 @@ collections:
         access:
           - {via: sia, name: spherex_qr2, note: "~1 day lag after ingest"}
           - {via: tap, name: spherex.plane, note: "no lag; join spherex.artifact"}
+          - {via: tap, name: spherex.artifact}
+          - {via: tap, name: spherex.observation}
+          - {via: tap, name: spherex.obscore}
           - {via: cutout}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/"}
           - {via: s3, name: "nasa-irsa-spherex/qr2/level2/"}
@@ -109,6 +116,7 @@ collections:
         type: calibration
         description: Per-detector calibration files (dark, gain, nonlinearity, spectral WCS, average PSF, ...)
         access:
+          - {via: tap, name: spherex.provenance_input, note: "Join tables for SPHEREx calibration files"}
           - {via: s3, name: "nasa-irsa-spherex/qr2/", note: "One prefix per product, e.g. average_psf/, dark/, spectral_wcs/"}
         docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
 

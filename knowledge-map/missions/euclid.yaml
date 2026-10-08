@@ -51,7 +51,7 @@ collections:
       - "Fields: EDF-N, EDF-F, EDF-S, LDN1641 (LDN1641 has no EXT data)"
       - "On-prem root https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/ (MD5 checksums under checksums/)"
       - "Bulk download scripts are in the S3 bucket under q1/"
-    as_of: 2026-10-06
+    as_of: 2026-10-07
     datasets:
       - id: euclid.q1.mer-mosaic
         name: MER mosaics
@@ -110,30 +110,50 @@ collections:
         access:
           - {via: tap, name: euclid_q1_mer_catalogue}
           - {via: scs, name: euclid_q1_mer_catalogue}
+          - {via: tap, name: euclid_q1_mer_morphology}
+          - {via: tap, name: euclid_q1_mer_cutouts}
           - {via: gui, name: Euclid Data Explorer}
         docs: []
 
       - id: euclid.q1.phz-catalog
-        name: PHZ photometric-redshift catalog
+        name: PHZ photometric-redshift catalogs
         type: catalog
         access:
-          - {via: tap, name: euclid_q1_phz_photo_z, note: "Other PHZ tables: euclid_q1_phz_* (classification, SEDs, physical parameters)"}
+          - {via: tap, name: euclid_q1_phz_photo_z}
+          - {via: tap, name: euclid_q1_phz_classification}
+          - {via: tap, name: euclid_q1_phz_galaxy_sed}
+          - {via: tap, name: euclid_q1_phz_star_sed}
+          - {via: tap, name: euclid_q1_phz_star_template}
+          - {via: tap, name: euclid_q1_phz_nir_physical_parameters}
+          - {via: tap, name: euclid_q1_phz_qso_physical_parameters}
         docs: []
 
       - id: euclid.q1.spe-catalogs
-        name: SPE galaxy candidates and line features
+        name: SPE redshift, line and model catalogs
         type: catalog
         access:
           - {via: tap, name: euclid_q1_spectro_zcatalog_spe_galaxy_candidates}
-          - {via: tap, name: euclid_q1_spe_lines_line_features, note: "Other SPE tables: euclid_q1_spectro_zcatalog_spe_*, euclid_q1_spe_lines_*"}
+          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_qso_candidates}
+          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_star_candidates}
+          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_classification}
+          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_quality}
+          - {via: tap, name: euclid_q1_spe_lines_line_features}
+          - {via: tap, name: euclid_q1_spe_lines_continuum_features}
+          - {via: tap, name: euclid_q1_spe_lines_atomic_indices}
+          - {via: tap, name: euclid_q1_spe_lines_molecular_indices}
+          - {via: tap, name: euclid_q1_spectro_model_catalog_spe_lines_catalog}
+          - {via: tap, name: euclid_q1_spectro_model_catalog_spe_star_models}
         docs: []
 
       - id: euclid.q1.association-tables
-        name: Tile ID and object-to-spectrum association tables
+        name: Association and CAOM metadata tables
         type: table
         access:
           - {via: tap, name: euclid.tileid_association_q1}
           - {via: tap, name: euclid.objectid_spectrafile_association_q1}
+          - {via: tap, name: euclid.observation_euclid_q1}
+          - {via: tap, name: euclid.plane_euclid_q1}
+          - {via: tap, name: euclid.artifact_euclid_q1}
         docs: []
 
       - id: euclid.q1.merged-objects
@@ -155,18 +175,19 @@ collections:
     doi: 10.26131/IRSA661
     overview: https://irsa.ipac.caltech.edu/data/Euclid/docs/overview_q2.html
     notes:
-      - "VIS imaging only; access via directories and DCE (no SIA, TAP or S3)"
+      - "VIS imaging only; no TAP catalogs or S3"
       - "Uses the DR10 data model"
       - "Calibration catalogues are not for statistics"
       # The README says checksum.sha256; the actual file is checksums.sha256
       - "SHA-256 checksums: https://irsa.ipac.caltech.edu/data/Euclid/q2/checksums.sha256"
-    as_of: 2026-10-06
+    as_of: 2026-10-07
     datasets:
       - id: euclid.q2.vis-images
         name: VIS quadrant images
         type: image
         description: "Per-exposure DET (science + flags + RMS; split with splitsci.py), BKG, WGT and CAT files"
         access:
+          - {via: sia, name: euclid_q2, note: "Not listed on the Q2 overview page"}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/data/Euclid/q2/data/"}
           - {via: gui, name: euclid_q2, note: "IRSA Viewer DCE: https://irsa.ipac.caltech.edu/irsaviewer/dce?api=dl&id=euclid_q2"}
         files:

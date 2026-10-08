@@ -1,0 +1,37 @@
+name: Discover new IRSA facts
+
+# Weekly: list IRSA collections, tables and S3 prefixes missing from the knowledge map,
+# and keep one rolling issue up to date with them (closed when there's nothing new).
+on:
+  schedule:
+    - cron: "30 14 * * 1"   # Mondays 14:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  discover-facts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml requests astroquery
+      - run: python scripts/discover_facts.py --output report.md
+      - name: Update rolling issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: New IRSA facts to triage
+        run: |
+          number=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number,title \
+                   --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if grep -q '^Nothing new' report.md; then
+            if [ -n "$number" ]; then gh issue close "$number" --comment "$(cat report.md)"; fi
+          elif [ -n "$number" ]; then
+            gh issue edit "$number" --body-file report.md
+          else
+            gh issue create --title "$TITLE" --body-file report.md
+          fi

@@ -70,6 +70,8 @@ pip install pyyaml requests astroquery   # first time only
 python scripts/validate_facts.py      # add -v to list every check, not just problems
 ```
 
+`scripts/discover_facts.py` does the reverse: it lists SIA/SSA collections, TAP tables and top-level S3 prefixes that IRSA has but the knowledge map doesn't, with a YAML line ready to paste. It runs weekly and keeps one rolling issue, "New IRSA facts to triage", up to date (closed when there's nothing new). Run it locally the same way: `python scripts/discover_facts.py`.
+
 ## Open TODOs
 
 - Euclid DR1 `released` (2026-10-21) comes from a search snippet only; verify it once DR1 is announced.
