@@ -11,11 +11,10 @@ Prints a Markdown report with a ready-to-paste YAML line per new item, and write
 """
 
 import argparse
-import re
 from datetime import date
 from pathlib import Path
 
-import requests
+import s3fs
 import yaml
 from astroquery.ipac.irsa import Irsa
 
@@ -41,10 +40,9 @@ def load_missions():
 
 
 def s3_top_level(bucket):
-    response = requests.get(f"https://{bucket}.s3.us-east-1.amazonaws.com/", timeout=60,
-                            params={"list-type": 2, "delimiter": "/"})
-    response.raise_for_status()
-    return re.findall(r"<Prefix>([^<]+)</Prefix>", response.text)
+    """Top-level directory prefixes of a bucket, e.g. ["qr2/", "qr3/"] (files like index.html excluded)."""
+    entries = s3fs.S3FileSystem(anon=True).ls(bucket, detail=True, refresh=True)
+    return [entry["name"].removeprefix(f"{bucket}/") + "/" for entry in entries if entry["type"] == "directory"]
 
 
 def discover():

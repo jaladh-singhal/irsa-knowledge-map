@@ -14,7 +14,6 @@ check in a collapsed section.
 
 import argparse
 import os
-import re
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -23,6 +22,7 @@ from pathlib import Path
 from urllib.robotparser import RobotFileParser
 
 import requests
+import s3fs
 import yaml
 from astroquery.ipac.irsa import Irsa
 from pyvo.dal import DALAccessError
@@ -44,6 +44,8 @@ session = requests.Session()
 session.headers["User-Agent"] = "irsa-knowledge-map-validate-facts"
 session.mount("https://", HTTPAdapter(max_retries=Retry(
     total=3, backoff_factor=2, status_forcelist=[429, 500, 502, 503, 504])))
+
+s3 = s3fs.S3FileSystem(anon=True)
 
 robots = RobotFileParser(f"{IRSA}/robots.txt")
 robots.read()
@@ -74,14 +76,11 @@ def check_ssa(collection):
 
 
 def check_s3(path):
-    bucket, _, prefix = path.removeprefix("s3://").partition("/")
-    response = session.get(f"https://{bucket}.s3.us-east-1.amazonaws.com/", timeout=TIMEOUT,
-                           params={"list-type": 2, "prefix": prefix, "max-keys": 1})
-    if response.status_code == 404:
-        return "fail", f"bucket {bucket} not found"
-    response.raise_for_status()
-    key_count = re.search(r"<KeyCount>(\d+)</KeyCount>", response.text)
-    return ("ok", "") if key_count and int(key_count[1]) > 0 else ("fail", "S3 prefix is empty")
+    try:
+        entries = s3.ls(path.removeprefix("s3://"), refresh=True)
+    except FileNotFoundError:
+        return "fail", "S3 prefix or bucket not found"
+    return ("ok", "") if entries else ("fail", "S3 prefix is empty")
 
 
 def check_url(url):
@@ -150,7 +149,7 @@ def run(check):
     where, what, func, arg = check
     try:
         status, detail = func(arg)
-    except (requests.RequestException, DALAccessError) as error:
+    except (requests.RequestException, DALAccessError, OSError) as error:
         status, detail = "fail", f"{type(error).__name__}: {error}"[:200]
     return where, what, status, detail
 

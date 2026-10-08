@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyyaml requests astroquery
+      - run: pip install pyyaml requests astroquery s3fs
       - run: python scripts/discover_facts.py --output report.md
       - name: Update rolling issue
         env:

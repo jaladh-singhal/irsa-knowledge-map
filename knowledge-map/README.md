@@ -66,7 +66,7 @@ IDs are hierarchical (`<mission>.<collection>.<dataset>`, e.g. `euclid.q1.mer-mo
 ```sh
 python3 -m venv .venv                 # first time only
 source .venv/bin/activate
-pip install pyyaml requests astroquery   # first time only
+pip install pyyaml requests astroquery s3fs   # first time only
 python scripts/validate_facts.py      # add -v to list every check, not just problems
 ```
 
