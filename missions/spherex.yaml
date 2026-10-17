@@ -1,4 +1,4 @@
-# SPHEREx @ IRSA. See ../README.md for rules and conventions.
+# SPHEREx @ IRSA. See README.md for rules and conventions.
 # S3 bucket nasa-irsa-spherex is in us-east-1.
 
 mission:
@@ -13,6 +13,17 @@ mission:
   status: active
   as_of: 2026-10-05
 
+# Product keys used in dataset ids (<mission>.<collection>.<product>). A product keeps its
+# key in every collection that has it; declare new keys here (validation checks this).
+products:
+  - {key: spectral-images, description: "Calibrated spectral image MEFs (wide survey)"}
+  - {key: spectral-images-deep, description: "Calibrated spectral image MEFs (deep fields)"}
+  - {key: epsf, description: "Effective PSF calibration files"}
+  - {key: calibration, description: "Calibration and ancillary products (dark, gain, nonlinearity, spectral WCS, PSF, ...)"}
+  - {key: target-list, description: "SPLICES target list catalog"}
+  - {key: observations, description: "Observations of a single target (ObsCore list and images)"}
+  - {key: lab-calibrations, description: "Lab spectral calibration package"}
+
 collections:
   - id: spherex.qr3
     name: Quick Release 3
@@ -26,9 +37,9 @@ collections:
     notes:
       - "Use caution combining with QR2 (different calibration)"
       - "More R7 weeks expected with DR1 (late fall 2026, per the Explanatory Supplement)"
-    as_of: 2026-10-07
+    as_of: 2026-10-16
     datasets:
-      - id: spherex.qr3.images
+      - id: spherex.qr3.spectral-images
         name: Spectral Image MEFs (wide)
         type: image
         description: Calibrated 2040x2040 spectral images, 6 per pointing
@@ -41,16 +52,18 @@ collections:
           - {via: cutout}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/"}
           - {via: s3, name: "nasa-irsa-spherex/qr3/level2/"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/spherex_qr.moc.fits", note: "One MOC for all QRs, not split by release"}
           - {via: gui, name: SPHEREx Data Explorer}
         files:
           pattern: "level2/{planning_period}/l2b-v{version}-{proc_date}/{detector}/level2_{obs_id}D{detector}_spx_l2b-v{version}-{proc_date}.fits"
         docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
 
-      - id: spherex.qr3.images-deep
+      - id: spherex.qr3.spectral-images-deep
         name: Spectral Image MEFs (deep fields)
         type: image
         access:
           - {via: sia, name: spherex_qr3_deep}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/spherex.deep_field.moc.fits"}
 
       - id: spherex.qr3.epsf
         name: Effective PSF (ePSF)
@@ -85,9 +98,9 @@ collections:
       - "Do not combine with QR1"
       - "Use caution combining with QR3 (different calibration)"
       - "Pipeline versions 6.4 to 6.5.6; see the PSF header known issue"
-    as_of: 2026-10-07
+    as_of: 2026-10-16
     datasets:
-      - id: spherex.qr2.images
+      - id: spherex.qr2.spectral-images
         name: Spectral Image MEFs (wide)
         type: image
         description: Calibrated 2040x2040 spectral images, 6 per pointing
@@ -100,16 +113,18 @@ collections:
           - {via: cutout}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/"}
           - {via: s3, name: "nasa-irsa-spherex/qr2/level2/"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/spherex_qr.moc.fits", note: "One MOC for all QRs, not split by release"}
           - {via: gui, name: SPHEREx Data Explorer}
         files:
           pattern: "level2/{planning_period}/l2b-v{version}-{proc_date}/{detector}/level2_{obs_id}D{detector}_spx_l2b-v{version}-{proc_date}.fits"
         docs: ["https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-products"]
 
-      - id: spherex.qr2.images-deep
+      - id: spherex.qr2.spectral-images-deep
         name: Spectral Image MEFs (deep fields)
         type: image
         access:
           - {via: sia, name: spherex_qr2_deep}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/spherex.deep_field.moc.fits"}
 
       - id: spherex.qr2.calibration
         name: Calibration and ancillary products
@@ -152,13 +167,14 @@ collections:
     doi: 10.26131/IRSA554
     overview: https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/
     notes: ["Pre-launch community target list; source_id = SPHEREx Reference Catalog ID"]
-    as_of: 2026-10-06
+    as_of: 2026-10-16
     datasets:
-      - id: spherex.splices.catalog
+      - id: spherex.splices.target-list
         name: SPLICES v8.6
         type: catalog
         access:
           - {via: gui, name: Gator, note: "Also via the IRSA catalog API"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/splices.moc.fits"}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/", note: "FITS file 20241107_SPLICESv8.6.fits.gz"}
         docs:
           - "https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/gator_docs/splices_colDescriptions.html"
@@ -191,7 +207,7 @@ collections:
       - "Pipeline calibrations are described in the user guide, not here"
     as_of: 2026-10-05
     datasets:
-      - id: spherex.spectral-calibrations.package
+      - id: spherex.spectral-calibrations.lab-calibrations
         name: Channel maps, response curves and band-center maps
         type: calibration
         description: Tar archive plus PDF
@@ -217,20 +233,21 @@ tools:
 
 known_issues:
   - title: PSF extension header plane ordering
-    affects: [spherex.qr2, spherex.qr2.images]
+    affects: [spherex.qr2, spherex.qr2.spectral-images]
     status: fixed
     fixed: 2026-03-31        # date from the erratum page; the mission page says 2026-04-10
     how_to_tell: "Header VERSION 6.4-6.5.5 without '+psffix1'"
     link: https://irsa.ipac.caltech.edu/data/SPHEREx/docs/psfhdrerr.html
 
 tutorials:
-  - {title: "Introduction to SPHEREx Spectral Images", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/", uses: [spherex.qr3.images]}
-  - {title: "Download a collection of SPHEREx Spectral Image cutouts as a multi-extension FITS file", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-cutouts/", uses: [spherex.qr3.images, spherex.qr2.images]}
-  - {title: "Understanding and Extracting the ePSF Extension in a SPHEREx Cutout", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-psf/", uses: [spherex.qr3.epsf, spherex.qr2.images]}
-  - {title: "SPHEREx Source Discovery Tool IRSA Demo", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-source-discovery-tool-demo/", uses: [spherex.qr2.images]}
-  - {title: "Understanding and Analyzing SPHEREx Mosaic Cubes", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-mosaic/", uses: []}
+  - {title: "Introduction to SPHEREx Spectral Images", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/", source: tutorials/spherex/spherex_intro.md, uses: [spherex.qr3.spectral-images]}
+  - {title: "Download a collection of SPHEREx Spectral Image cutouts as a multi-extension FITS file", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-cutouts/", source: tutorials/spherex/spherex_cutouts.md, uses: [spherex.qr3.spectral-images, spherex.qr2.spectral-images]}
+  - {title: "Understanding and Extracting the ePSF Extension in a SPHEREx Cutout", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-psf/", source: tutorials/spherex/spherex_psf.md, uses: [spherex.qr3.epsf, spherex.qr2.spectral-images]}
+  - {title: "SPHEREx Source Discovery Tool IRSA Demo", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-source-discovery-tool-demo/", source: tutorials/spherex/spherex_source_discovery/spherex_source_discovery_tool_demo.md, uses: [spherex.qr2.spectral-images]}
+  - {title: "Understanding and Analyzing SPHEREx Mosaic Cubes", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex-mosaic/", source: tutorials/spherex/spherex_mosaic.md, uses: []}
 
 docs:
+  - {title: "IRSA SPHEREx tutorials", url: "https://caltech-ipac.github.io/irsa-tutorials/spherex/", kind: tutorial_index}
   - {title: "SPHEREx Explanatory Supplement", url: "https://irsa.ipac.caltech.edu/data/SPHEREx/docs/SPHEREx_Expsupp_QR.pdf", kind: supplement, version: "2.0"}
   - {title: "SPHEREx Archive User Guide", url: "https://caltech-ipac.github.io/spherex-archive-documentation/", kind: user_guide}
   - {title: "SPHEREx Data Access", url: "https://caltech-ipac.github.io/spherex-archive-documentation/spherex-data-access", kind: user_guide}

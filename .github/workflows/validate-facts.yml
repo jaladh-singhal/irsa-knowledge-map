@@ -6,6 +6,7 @@ on:
     paths:
       - "irsa.yaml"
       - "missions/**"
+      - "km_lookup.py"
       - "scripts/validate_facts.py"
       - ".github/workflows/validate-facts.yml"
   schedule:

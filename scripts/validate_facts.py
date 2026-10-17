@@ -30,6 +30,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+import km_lookup  # noqa: E402  (repo-root helper)
 IRSA = "https://irsa.ipac.caltech.edu"
 TIMEOUT = 60
 RECHECK_DELAY = 30  # seconds before re-checking failures
@@ -100,8 +102,21 @@ def check_url(url):
     return ("ok", "") if response.status_code < 400 else ("fail", f"HTTP {response.status_code}")
 
 
+@cache
+def tutorial_index():
+    """Every notebook path listed in irsa-tutorials' notebook_metadata.yml."""
+    config = km_lookup._read("irsa.yaml", str(ROOT))["tutorials"]
+    response = session.get(config["source_prefix"] + config["index"], timeout=TIMEOUT)
+    response.raise_for_status()
+    return {notebook["file"] for notebook in yaml.safe_load(response.text)}
+
+
+def check_tutorial_listed(source_path):
+    return ("ok", "") if source_path in tutorial_index() else ("fail", "not in irsa-tutorials' notebook_metadata.yml")
+
+
 ACCESS_CHECKS = {"tap": check_tap, "scs": check_tap, "sia": check_sia, "ssa": check_ssa,
-                 "s3": check_s3, "hats": check_s3, "browse": check_url}
+                 "s3": check_s3, "hats": check_s3, "browse": check_url, "moc": check_url}
 
 
 # --- collect checks from the YAML
@@ -114,35 +129,50 @@ def collect():
             checks.append((where, value, check_url, value))
 
     for path in sorted((ROOT / "missions").glob("*.yaml")):
-        mission_file = yaml.safe_load(path.read_text())
-        mission = mission_file["mission"]["id"]
+        mission = path.stem
+        mission_file = km_lookup.load(mission, source=str(ROOT))
         url(f"{mission}: archive_page", mission_file["mission"].get("archive_page"))
         for collection in mission_file.get("collections") or []:
             url(f"{collection['id']}: overview", collection.get("overview"))
             for dataset in collection.get("datasets") or []:
-                for entry in dataset.get("access") or []:
-                    via, name = entry["via"], entry.get("name")
-                    if via not in ACCESS_CHECKS or not name or entry.get("status") == "planned":
-                        continue
-                    if via == "browse" and not str(name).startswith("http"):
-                        continue  # a bare filename, relative to the overview page
-                    checks.append((f"{dataset['id']}: {via}", name, ACCESS_CHECKS[via], name))
                 for doc in dataset.get("docs") or []:
                     url(f"{dataset['id']}: docs", doc)
+        for _, dataset, entry in km_lookup.iter_access(mission_file):
+            via, name = entry["via"], entry.get("name")
+            if via not in ACCESS_CHECKS or not name or entry.get("status") == "planned":
+                continue
+            if via == "browse" and not str(name).startswith("http"):
+                continue  # a bare filename, relative to the overview page
+            checks.append((f"{dataset['id']}: {via}", name, ACCESS_CHECKS[via], name))
         for tool in mission_file.get("tools") or []:
             url(f"{mission} tool {tool['name']}: url", tool.get("url"))
             url(f"{mission} tool {tool['name']}: docs", tool.get("docs"))
         for issue in mission_file.get("known_issues") or []:
             url(f"{mission} known issue {issue['title']}: link", issue.get("link"))
-        for tutorial in mission_file.get("tutorials") or []:
+        for tutorial in km_lookup.tutorials(mission_file, source=str(ROOT)):
             url(f"{mission} tutorial: url", tutorial.get("url"))
+            url(f"{mission} tutorial: source", tutorial["source_url"])
+            checks.append((f"{mission} tutorial: listed", tutorial["source"], check_tutorial_listed, tutorial["source"]))
         for doc in mission_file.get("docs") or []:
             url(f"{mission} doc {doc['title']}: url", doc.get("url"))
 
-    services = yaml.safe_load((ROOT / "irsa.yaml").read_text())["services"]
-    for key, service in services.items():
+    for key, service in km_lookup.services(source=str(ROOT)).items():
         url(f"irsa service {key}: docs", service.get("docs"))
     return checks
+
+
+def check_product_keys():
+    """Every dataset's product key must be declared in its mission's `products` list."""
+    results = []
+    for path in sorted((ROOT / "missions").glob("*.yaml")):
+        mission_file = km_lookup.load(path.stem, source=str(ROOT))
+        declared = km_lookup.products(mission_file)
+        for collection in mission_file.get("collections") or []:
+            for dataset in collection.get("datasets") or []:
+                key = dataset["id"].split(".", 2)[-1]
+                status, detail = ("ok", "") if key in declared else ("fail", "product key not declared in `products`")
+                results.append((f"{dataset['id']}: product key", key, status, detail))
+    return results
 
 
 def run(check):
@@ -178,6 +208,8 @@ def main(argv=None):
                 if status != "fail":
                     status, detail = "warn", f"passed on re-check; first try: {results[i][3]}"
                 results[i] = (where, what, status, detail)
+
+    results = check_product_keys() + results   # structural, no network: never re-checked
 
     by_status = {status: [result for result in results if result[2] == status]
                  for status in ("ok", "warn", "fail", "skip")}

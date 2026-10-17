@@ -14,3 +14,9 @@ services:
   hats:   {name: HATS Parquet, docs: "https://irsa.ipac.caltech.edu/docs/parquet_catalogs/"}
   gui:    {name: Mission Data Explorer / IRSA Viewer}
   script: {name: Bulk download scripts (wget/curl)}
+  moc:    {name: MOC coverage maps, docs: "https://irsa.ipac.caltech.edu/data/MOC/", python: "mocpy MOC.from_fits(url)"}
+
+# Missions' tutorials refer to notebooks by `source` path in this repo.
+tutorials:
+  source_prefix: "https://raw.githubusercontent.com/Caltech-IPAC/irsa-tutorials/main/"
+  index: notebook_metadata.yml

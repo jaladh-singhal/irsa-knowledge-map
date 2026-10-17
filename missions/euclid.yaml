@@ -1,4 +1,4 @@
-# Euclid @ IRSA. See ../README.md for rules and conventions.
+# Euclid @ IRSA. See README.md for rules and conventions.
 # S3 bucket nasa-irsa-euclid-q1 is in us-east-1.
 
 mission:
@@ -13,6 +13,55 @@ mission:
   status: active
   as_of: 2026-09-30
 
+# Product keys used in dataset ids (<mission>.<collection>.<product>). A product keeps its
+# key in every collection that has it; declare new keys here (validation checks this).
+products:
+  - {key: stacks, description: "ERO image stacks"}
+  - {key: stack-catalogs, description: "ERO source catalogues"}
+  - {key: mer-mosaic, description: "MER multiwavelength mosaics"}
+  - {key: mer-segmentation, description: "MER segmentation maps"}
+  - {key: vis-frames, description: "VIS calibrated quadrant frames", note: "Q2 has the same product under the DR10 data model, with a different file layout (see each dataset's files.pattern)"}
+  - {key: nir-frames, description: "NISP calibrated frames"}
+  - {key: raw-frames, description: "Raw VIS and NISP frames"}
+  - {key: vmpz, description: "VMPZ HEALPix masks and maps"}
+  - {key: sir-spectra, description: "SIR 1D combined spectra"}
+  - {key: sir-frames, description: "SIR calibrated 2D science frames"}
+  - {key: mer-catalog, description: "MER final catalog"}
+  - {key: mer-morphology, description: "MER morphology catalog"}
+  - {key: mer-cutouts, description: "MER cutouts catalog"}
+  - {key: phz-photo-z, description: "PHZ photo-z catalog"}
+  - {key: phz-classification, description: "PHZ classification catalog"}
+  - {key: phz-galaxy-sed, description: "PHZ galaxy SED catalog"}
+  - {key: phz-star-sed, description: "PHZ star SED catalog"}
+  - {key: phz-star-template, description: "PHZ star template catalog"}
+  - {key: phz-nir-physical-parameters, description: "PHZ NIR physical parameters catalog"}
+  - {key: phz-qso-physical-parameters, description: "PHZ QSO physical parameters catalog"}
+  - {key: spe-galaxy-candidates, description: "SPE redshift catalog - galaxy candidates"}
+  - {key: spe-qso-candidates, description: "SPE redshift catalog - QSO candidates"}
+  - {key: spe-star-candidates, description: "SPE redshift catalog - star candidates"}
+  - {key: spe-classification, description: "SPE redshift catalog - classification"}
+  - {key: spe-quality, description: "SPE redshift catalog - quality"}
+  - {key: spe-line-features, description: "SPE lines catalog - spectral lines"}
+  - {key: spe-continuum-features, description: "SPE lines catalog - continuum features"}
+  - {key: spe-atomic-indices, description: "SPE lines catalog - atomic indices"}
+  - {key: spe-molecular-indices, description: "SPE lines catalog - molecular indices"}
+  - {key: spe-lines-models, description: "SPE models catalog - lines"}
+  - {key: spe-star-models, description: "SPE star models catalog"}
+  - {key: mer-catalog-files, description: "MER catalog FITS files"}
+  - {key: phz-catalog-files, description: "PHZ catalog FITS files"}
+  - {key: spe-catalog-files, description: "SPE catalog FITS files"}
+  - {key: vis-frame-catalog, description: "VIS calibrated-frame catalogs"}
+  - {key: nir-frame-catalog, description: "NISP calibrated-frame catalogs"}
+  - {key: tileid-association, description: "TILE ID to Observation ID association table"}
+  - {key: objectid-spectrafile-association, description: "Object ID to spectral file association table"}
+  - {key: caom-observation, description: "CAOM observation table"}
+  - {key: caom-plane, description: "CAOM plane table"}
+  - {key: caom-artifact, description: "CAOM artifact table"}
+  - {key: merged-objects, description: "Merged objects (HATS)"}
+  - {key: psfex-model, description: "PSFEx PSF model"}
+  - {key: calibration-catalogues, description: "Calibration catalogues"}
+  - {key: planned-coverage, description: "Planned DR1 and survey coverage"}
+
 collections:
   - id: euclid.ero
     name: Early Release Observations
@@ -24,18 +73,31 @@ collections:
     doi: 10.57780/esa-qmocze3   # ESA DOI
     # /data/Euclid/ERO/overview.html also serves the page; the "Overview" icon (ERO/Validation/overview.html) is a 404.
     overview: https://irsa.ipac.caltech.edu/data/Euclid/docs/overview_ero.html
-    notes: []
-    as_of: 2026-10-06
+    notes: ["Predates Q1 and is a separate set of targeted observations; superseded by Q1 and later releases"]
+    as_of: 2026-10-16
     datasets:
-      - id: euclid.ero.images
-        name: ERO images
+      - id: euclid.ero.stacks
+        name: ERO image stacks
         type: image
-        description: Per-target image folders
+        description: Per-target VIS and NISP stacks
         access:
           # The ERO overview page lists only directories + DCE, but SIA euclid_ero is live (checked 2026-10-06).
           - {via: sia, name: euclid_ero}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/data/Euclid/ERO/images/"}
           - {via: gui, name: euclid_ero, note: "IRSA Viewer DCE: https://irsa.ipac.caltech.edu/irsaviewer/dce?api=dl&id=euclid_ero"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_ero.moc.fits"}
+        files:
+          pattern: "{target}/Euclid-{VIS|NISP}-Stack-ERO-{target}.DR3.tar"   # per-band FITS also unpacked under {target}/ERO-{target}/
+        docs: []
+
+      - id: euclid.ero.stack-catalogs
+        name: ERO source catalogues
+        type: catalog
+        description: SourceExtractor + PSFEx catalogues per target, as tarballs next to the stacks (not in TAP)
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/data/Euclid/ERO/images/"}
+        files:
+          pattern: "{target}/Euclid-{VIS|NISP}-Catalog-ERO-{target}.DR3.tar.gz"   # README.txt in each {target}/ lists contents
         docs: []
 
   - id: euclid.q1
@@ -45,18 +107,19 @@ collections:
     status: available
     released: 2025-03-19
     cadence: once
-    doi:                     # none at release level; 28 per-product DOIs (10.26131/IRSA599-627) are listed on the overview page
+    doi:                     # none at release level; per-product DOIs are on each dataset
     overview: https://irsa.ipac.caltech.edu/data/Euclid/docs/overview_q1.html
     notes:
       - "Fields: EDF-N, EDF-F, EDF-S, LDN1641 (LDN1641 has no EXT data)"
       - "On-prem root https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/ (MD5 checksums under checksums/)"
       - "Bulk download scripts are in the S3 bucket under q1/"
-    as_of: 2026-10-07
+    as_of: 2026-10-16
     datasets:
+      # --- Images ---
       - id: euclid.q1.mer-mosaic
-        name: MER mosaics
+        name: MER multiwavelength mosaics
         type: image
-        description: Background-subtracted multi-wavelength mosaics, organized by TILE ID
+        description: Background-subtracted mosaics per MER tile (VIS, NISP and ground-based EXT bands)
         doi: 10.26131/IRSA601
         access:
           - {via: sia, name: euclid_DpdMerBksMosaic}
@@ -64,45 +127,98 @@ collections:
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/MER/"}
           - {via: s3, name: "nasa-irsa-euclid-q1/q1/MER/"}
           - {via: gui, name: Euclid Data Explorer}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_q1_coverage.moc.fits", note: "Same size as euclid_mer_tiles and euclid.euclid_q1_mer MOCs"}
         files:
           # {instrument_dir}: VIS | NISP | DECAM ... ; {filter}: VIS | NIR-Y | NIR-J | NIR-H ... (verified in S3 listing)
           pattern: "MER/{tile}/{instrument_dir}/EUC_MER_BGSUB-MOSAIC-{filter}_TILE{tile}-*_{timestamp}_*.fits"
         docs: []
 
+      - id: euclid.q1.mer-segmentation
+        name: MER segmentation maps
+        type: image
+        description: Maps of MER pixels assigned to detected objects; pixel values match SEGMENTATION_MAP_ID in the MER catalog
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/MER_SEG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/MER_SEG/"}
+        files:
+          pattern: "MER_SEG/{tile}/EUC_MER_FINAL-SEGMAP_TILE{tile}-*_{timestamp}_*.fits"
+        docs: []
+
       - id: euclid.q1.vis-frames
         name: VIS calibrated quadrant frames
         type: image
+        doi: 10.26131/IRSA599
         access:
           - {via: sia, name: euclid_DpdVisCalibratedQuadFrame}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/VIS/"}
           - {via: s3, name: "nasa-irsa-euclid-q1/q1/VIS/"}
         files:
-          pattern: "VIS/{obs_id}/*"   # organized by Observation ID
+          pattern: "VIS/{obs_id}/EUC_VIS_*.fits"   # organized by Observation ID
         docs: []
 
-      - id: euclid.q1.nisp-frames
+      - id: euclid.q1.nir-frames
         name: NISP calibrated frames
         type: image
+        doi: 10.26131/IRSA600
         access:
           - {via: sia, name: euclid_DpdNirCalibratedFrame}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/NIR/"}
           - {via: s3, name: "nasa-irsa-euclid-q1/q1/NIR/"}
         files:
-          pattern: "NIR/{obs_id}/*"   # organized by Observation ID
+          pattern: "NIR/{obs_id}/EUC_NIR_*.fits"   # organized by Observation ID
         docs: []
 
-      - id: euclid.q1.spectra
+      - id: euclid.q1.raw-frames
+        name: Raw VIS and NISP frames
+        type: image
+        description: Level 1 (LE1) raw frames, organized by Observation ID
+        doi: 10.26131/IRSA614
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/RAW/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/RAW/"}
+        files:
+          pattern: "RAW/{obs_id}/EUC_LE1_{VIS|NISP}-{obs_id_padded}-1-D_{timestamp}*.fits"
+        docs: []
+
+      - id: euclid.q1.vmpz
+        name: VMPZ HEALPix masks and maps
+        type: image
+        description: "Visibility Mask Photo-Z products: bit, footprint and coverage masks, depth and info maps, per tile"
+        doi: 10.26131/IRSA617
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/VMPZ/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/VMPZ/"}
+        files:
+          pattern: "VMPZ/VMPZ_HEALPIX_{BIT_MASK|FOOTPRINT_MASK|COVERAGE_MASK|DEPTH_MAP|INFO_MAP}/{tile}/EUC_LE3_VMPZ-ID_*-{tile}_{timestamp}.fits"
+        docs: []
+
+      # --- Spectra ---
+      - id: euclid.q1.sir-spectra
         name: SIR 1D combined spectra
         type: spectrum
+        description: One multi-extension file per tile, one object per HDU
         doi: 10.26131/IRSA616
         access:
           - {via: ssa, name: euclid_DpdSirCombinedSpectra, note: "Load one object's spectrum via /api/spectrumdm/convert/..."}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/SIR/"}
           - {via: s3, name: "nasa-irsa-euclid-q1/q1/SIR/"}
         files:
-          pattern: "SIR/{tile}/*"   # organized by TILE ID
+          pattern: "SIR/{tile}/EUC_SIR_W-COMBSPEC_{tile}_{timestamp}.fits"   # organized by TILE ID
         docs: []
 
+      - id: euclid.q1.sir-frames
+        name: SIR calibrated 2D science frames
+        type: image
+        description: Background-subtracted slitless 2D frames per grism exposure
+        doi: 10.26131/IRSA615
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/SIR/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/SIR/"}
+        files:
+          pattern: "SIR/{obs_id}/EUC_SIR_W-SCIFRM_BKGSUB_{obs_id}_*.fits"   # organized by Observation ID, alongside the tile folders of sir-spectra
+        docs: []
+
+      # --- MER catalogs (TAP) ---
       - id: euclid.q1.mer-catalog
         name: MER final catalog
         type: catalog
@@ -110,58 +226,120 @@ collections:
         access:
           - {via: tap, name: euclid_q1_mer_catalogue}
           - {via: scs, name: euclid_q1_mer_catalogue}
-          - {via: tap, name: euclid_q1_mer_morphology}
-          - {via: tap, name: euclid_q1_mer_cutouts}
           - {via: gui, name: Euclid Data Explorer}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_q1_mer_catalogue.moc.fits"}
         docs: []
 
-      - id: euclid.q1.phz-catalog
-        name: PHZ photometric-redshift catalogs
+      - id: euclid.q1.mer-morphology
+        name: MER morphology catalog
         type: catalog
+        doi: 10.26131/IRSA603
         access:
-          - {via: tap, name: euclid_q1_phz_photo_z}
-          - {via: tap, name: euclid_q1_phz_classification}
-          - {via: tap, name: euclid_q1_phz_galaxy_sed}
-          - {via: tap, name: euclid_q1_phz_star_sed}
-          - {via: tap, name: euclid_q1_phz_star_template}
-          - {via: tap, name: euclid_q1_phz_nir_physical_parameters}
-          - {via: tap, name: euclid_q1_phz_qso_physical_parameters}
+          - {via: tap, name: euclid_q1_mer_morphology}
         docs: []
 
-      - id: euclid.q1.spe-catalogs
-        name: SPE redshift, line and model catalogs
+      - id: euclid.q1.mer-cutouts
+        name: MER cutouts catalog
         type: catalog
+        doi: 10.26131/IRSA619
         access:
-          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_galaxy_candidates}
-          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_qso_candidates}
-          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_star_candidates}
-          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_classification}
-          - {via: tap, name: euclid_q1_spectro_zcatalog_spe_quality}
-          - {via: tap, name: euclid_q1_spe_lines_line_features}
-          - {via: tap, name: euclid_q1_spe_lines_continuum_features}
-          - {via: tap, name: euclid_q1_spe_lines_atomic_indices}
-          - {via: tap, name: euclid_q1_spe_lines_molecular_indices}
-          - {via: tap, name: euclid_q1_spectro_model_catalog_spe_lines_catalog}
-          - {via: tap, name: euclid_q1_spectro_model_catalog_spe_star_models}
+          - {via: tap, name: euclid_q1_mer_cutouts}
         docs: []
 
-      - id: euclid.q1.association-tables
-        name: Association and CAOM metadata tables
-        type: table
+      # --- PHZ catalogs (TAP) ---
+      - {id: euclid.q1.phz-photo-z, name: PHZ photo-z catalog, type: catalog, doi: 10.26131/IRSA604, access: [{via: tap, name: euclid_q1_phz_photo_z}]}
+      - {id: euclid.q1.phz-classification, name: PHZ classification catalog, type: catalog, doi: 10.26131/IRSA622, access: [{via: tap, name: euclid_q1_phz_classification}]}
+      - {id: euclid.q1.phz-galaxy-sed, name: PHZ galaxy SED catalog, type: catalog, doi: 10.26131/IRSA621, access: [{via: tap, name: euclid_q1_phz_galaxy_sed}]}
+      - {id: euclid.q1.phz-star-sed, name: PHZ star SED catalog, type: catalog, doi: 10.26131/IRSA620, access: [{via: tap, name: euclid_q1_phz_star_sed}]}
+      - {id: euclid.q1.phz-star-template, name: PHZ star template catalog, type: catalog, doi: 10.26131/IRSA625, access: [{via: tap, name: euclid_q1_phz_star_template}]}
+      - {id: euclid.q1.phz-nir-physical-parameters, name: PHZ NIR physical parameters catalog, type: catalog, doi: 10.26131/IRSA624, access: [{via: tap, name: euclid_q1_phz_nir_physical_parameters}]}
+      - {id: euclid.q1.phz-qso-physical-parameters, name: PHZ QSO physical parameters catalog, type: catalog, doi: 10.26131/IRSA623, access: [{via: tap, name: euclid_q1_phz_qso_physical_parameters}]}
+
+      # --- SPE catalogs (TAP) ---
+      - {id: euclid.q1.spe-galaxy-candidates, name: SPE redshift catalog - galaxy candidates, type: catalog, doi: 10.26131/IRSA607, access: [{via: tap, name: euclid_q1_spectro_zcatalog_spe_galaxy_candidates}]}
+      - {id: euclid.q1.spe-qso-candidates, name: SPE redshift catalog - QSO candidates, type: catalog, doi: 10.26131/IRSA608, access: [{via: tap, name: euclid_q1_spectro_zcatalog_spe_qso_candidates}]}
+      - {id: euclid.q1.spe-star-candidates, name: SPE redshift catalog - star candidates, type: catalog, doi: 10.26131/IRSA609, access: [{via: tap, name: euclid_q1_spectro_zcatalog_spe_star_candidates}]}
+      - {id: euclid.q1.spe-classification, name: SPE redshift catalog - classification, type: catalog, doi: 10.26131/IRSA606, access: [{via: tap, name: euclid_q1_spectro_zcatalog_spe_classification}]}
+      - {id: euclid.q1.spe-quality, name: SPE redshift catalog - quality, type: catalog, doi: 10.26131/IRSA605, access: [{via: tap, name: euclid_q1_spectro_zcatalog_spe_quality}]}
+      - {id: euclid.q1.spe-line-features, name: SPE lines catalog - spectral lines, type: catalog, doi: 10.26131/IRSA610, access: [{via: tap, name: euclid_q1_spe_lines_line_features}]}
+      - {id: euclid.q1.spe-continuum-features, name: SPE lines catalog - continuum features, type: catalog, doi: 10.26131/IRSA611, access: [{via: tap, name: euclid_q1_spe_lines_continuum_features}]}
+      - {id: euclid.q1.spe-atomic-indices, name: SPE lines catalog - atomic indices, type: catalog, doi: 10.26131/IRSA612, access: [{via: tap, name: euclid_q1_spe_lines_atomic_indices}]}
+      - {id: euclid.q1.spe-molecular-indices, name: SPE lines catalog - molecular indices, type: catalog, doi: 10.26131/IRSA613, access: [{via: tap, name: euclid_q1_spe_lines_molecular_indices}]}
+      - {id: euclid.q1.spe-lines-models, name: SPE models catalog - lines, type: catalog, doi: 10.26131/IRSA626, access: [{via: tap, name: euclid_q1_spectro_model_catalog_spe_lines_catalog}]}
+      - {id: euclid.q1.spe-star-models, name: SPE star models catalog, type: catalog, doi: 10.26131/IRSA627, access: [{via: tap, name: euclid_q1_spectro_model_catalog_spe_star_models}]}
+
+      # --- Catalog FITS files (per tile or observation; not table-by-table) ---
+      - id: euclid.q1.mer-catalog-files
+        name: MER catalog FITS files
+        type: catalog
+        description: Per-tile FITS of the MER final, cutouts and morphology catalogs
         access:
-          - {via: tap, name: euclid.tileid_association_q1}
-          - {via: tap, name: euclid.objectid_spectrafile_association_q1}
-          - {via: tap, name: euclid.observation_euclid_q1}
-          - {via: tap, name: euclid.plane_euclid_q1}
-          - {via: tap, name: euclid.artifact_euclid_q1}
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/MER_FINAL_CATALOG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/MER_FINAL_CATALOG/"}
+        files:
+          pattern: "catalogs/MER_FINAL_CATALOG/{tile}/EUC_MER_FINAL-{CAT|CUTOUTS-CAT|MORPH-CAT}_TILE{tile}-*_{timestamp}_*.fits"
         docs: []
 
+      - id: euclid.q1.phz-catalog-files
+        name: PHZ catalog FITS files
+        type: catalog
+        description: Per-tile FITS of the PHZ catalogs
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/PHZ_PF_OUTPUT_CATALOG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/PHZ_PF_OUTPUT_CATALOG/"}
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/PHZ_PF_OUTPUT_FOR_L3/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/PHZ_PF_OUTPUT_FOR_L3/"}
+        files:
+          pattern: "catalogs/{PHZ_PF_OUTPUT_CATALOG|PHZ_PF_OUTPUT_FOR_L3}/{tile}/EUC_PHZ_*_{timestamp}_*.fits"
+        docs: []
+
+      - id: euclid.q1.spe-catalog-files
+        name: SPE catalog FITS files
+        type: catalog
+        description: Per-tile FITS of the SPE catalogs
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/SPE_PF_OUTPUT_CATALOG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/SPE_PF_OUTPUT_CATALOG/"}
+        files:
+          pattern: "catalogs/SPE_PF_OUTPUT_CATALOG/{tile}/EUC_SPE_WIDE-CAT-*-{tile}_*_{timestamp}_*.fits"
+        docs: []
+
+      - id: euclid.q1.vis-frame-catalog
+        name: VIS calibrated-frame catalogs
+        type: catalog
+        description: Source catalogs measured on the calibrated VIS frames (not in TAP)
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/VIS_CAL_CATALOG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/VIS_CAL_CATALOG/"}
+        files:
+          pattern: "catalogs/VIS_CAL_CATALOG/{obs_id}/EUC_VIS_SWL-CAT-*.fits"
+        docs: []
+
+      - id: euclid.q1.nir-frame-catalog
+        name: NISP calibrated-frame catalogs
+        type: catalog
+        description: Catalogs extracted from the NISP calibrated frames (not in TAP)
+        access:
+          - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/catalogs/NIR_CAL_CATALOG/"}
+          - {via: s3, name: "nasa-irsa-euclid-q1/q1/catalogs/NIR_CAL_CATALOG/"}
+        files:
+          pattern: "catalogs/NIR_CAL_CATALOG/{obs_id}/EUC_NIR_W-CALIB-CAT_*.fits"
+        docs: []
+
+      # --- IRSA association and CAOM metadata tables ---
+      - {id: euclid.q1.tileid-association, name: TILE ID to Observation ID association table, type: table, access: [{via: tap, name: euclid.tileid_association_q1}]}
+      - {id: euclid.q1.objectid-spectrafile-association, name: Object ID to spectral file association table, type: table, access: [{via: tap, name: euclid.objectid_spectrafile_association_q1}]}
+      - {id: euclid.q1.caom-observation, name: CAOM observation table, type: table, access: [{via: tap, name: euclid.observation_euclid_q1}]}
+      - {id: euclid.q1.caom-plane, name: CAOM plane table, type: table, access: [{via: tap, name: euclid.plane_euclid_q1}]}
+      - {id: euclid.q1.caom-artifact, name: CAOM artifact table, type: table, access: [{via: tap, name: euclid.artifact_euclid_q1}]}
+
+      # --- IRSA-contributed ---
       - id: euclid.q1.merged-objects
         name: Merged objects (HATS)
         type: catalog
         description: IRSA-contributed; 14 Q1 catalogs joined on object_id, HATS-partitioned Parquet
         access:
-          - {via: hats, name: "s3://nasa-irsa-euclid-q1/contributed/q1/merged_objects/hats"}
+          - {via: hats, name: "s3://nasa-irsa-euclid-q1/contributed/q1/merged_objects/hats", note: "HATS collection: catalog euclid_q1_merged_objects-hats (Parquet under dataset/), index _index_object_id, margin _margin_10arcsec"}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/data/download/parquet/euclid/q1/merged_objects/hats/"}
         docs: []
 
@@ -180,16 +358,17 @@ collections:
       - "Calibration catalogues are not for statistics"
       # The README says checksum.sha256; the actual file is checksums.sha256
       - "SHA-256 checksums: https://irsa.ipac.caltech.edu/data/Euclid/q2/checksums.sha256"
-    as_of: 2026-10-07
+    as_of: 2026-10-16
     datasets:
-      - id: euclid.q2.vis-images
-        name: VIS quadrant images
+      - id: euclid.q2.vis-frames
+        name: VIS quadrant frames
         type: image
         description: "Per-exposure DET (science + flags + RMS; split with splitsci.py), BKG, WGT and CAT files"
         access:
           - {via: sia, name: euclid_q2, note: "Not listed on the Q2 overview page"}
           - {via: browse, name: "https://irsa.ipac.caltech.edu/data/Euclid/q2/data/"}
           - {via: gui, name: euclid_q2, note: "IRSA Viewer DCE: https://irsa.ipac.caltech.edu/irsaviewer/dce?api=dl&id=euclid_q2"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_q2.moc.fits"}
         files:
           pattern: "EUC_VIS_SWL-{DET|BKG|WGT|CAT}-{obs_id}-{dither}-{expnum}__*.fits"   # CAT also ships as .xml; dither maps to field (see README)
         docs: ["https://irsa.ipac.caltech.edu/data/Euclid/q2/README.md"]
@@ -216,8 +395,17 @@ collections:
     status: planned
     released: 2026-10-21           # TODO: from an ENSCI search snippet only; verify
     cadence: once
-    notes: []
-    as_of: 2026-09-30
+    notes: ["No data released yet; only planned-coverage MOCs exist"]
+    as_of: 2026-10-16
+    datasets:
+      - id: euclid.dr1.planned-coverage
+        name: Planned DR1 and survey coverage
+        type: table
+        description: Planned footprints, not released data
+        access:
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_dr1_wide.moc.moc.fits", note: "DR1 wide (double .moc in the file name is IRSA's)"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_dr1_deep.moc.moc.fits", note: "DR1 deep"}
+          - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_planned_coverage.moc.fits", note: "Full planned survey"}
 
 identifiers:
   - {name: TILE ID, example: "102018211", description: "9-digit MER tile; organizes MER products"}
@@ -235,19 +423,20 @@ tools:
 known_issues: []   # Data Explorer limitations page is linked under docs; its availability claims are stale
 
 tutorials:
-  - {title: "Euclid tutorials (gallery)", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid/", uses: []}
-  - {title: "Euclid Q1: MER Mosaics", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-images/", uses: [euclid.q1.mer-mosaic]}
-  - {title: "Euclid Q1: MER Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-catalog/", uses: [euclid.q1.mer-catalog]}
-  - {title: "Euclid Q1: SIR 1D Spectra", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-1d-spectra/", uses: [euclid.q1.spectra]}
-  - {title: "Euclid Q1: PHZ Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-phz-catalog/", uses: [euclid.q1.phz-catalog, euclid.q1.mer-catalog, euclid.q1.mer-mosaic, euclid.q1.spectra]}
-  - {title: "Euclid Q1: SPE Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-spe-catalog/", uses: [euclid.q1.spe-catalogs, euclid.q1.mer-catalog]}
-  - {title: "Euclid Q1 Merged Objects HATS Catalog: Introduction", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-intro/", uses: [euclid.q1.merged-objects]}
-  - {title: "Euclid Q1 Merged Objects HATS Catalog: Magnitudes", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-magnitudes/", uses: [euclid.q1.merged-objects]}
-  - {title: "Euclid Q1: Cloud Access", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-cloud-access/", uses: [euclid.q1.mer-mosaic, euclid.q1.spectra]}
-  - {title: "Euclid Galaxy Clusters Analysis Tutorial", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-clusters-tutorial/", uses: [euclid.q1.mer-catalog, euclid.q1.phz-catalog]}
-  - {title: "Exploring Star Clusters in the Euclid ERO Data", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-ero/", uses: [euclid.ero.images]}
+  - {title: "Euclid Q1: MER Mosaics", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-images/", source: tutorials/euclid/1_Euclid_intro_MER_images.md, uses: [euclid.q1.mer-mosaic]}
+  - {title: "Euclid Q1: MER Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-catalog/", source: tutorials/euclid/2_Euclid_intro_MER_catalog.md, uses: [euclid.q1.mer-catalog]}
+  - {title: "Euclid Q1: SIR 1D Spectra", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-1d-spectra/", source: tutorials/euclid/3_Euclid_intro_1D_spectra.md, uses: [euclid.q1.sir-spectra]}
+  - {title: "Euclid Q1: PHZ Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-phz-catalog/", source: tutorials/euclid/4_Euclid_intro_PHZ_catalog.md, uses: [euclid.q1.phz-photo-z, euclid.q1.mer-catalog, euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
+  - {title: "Euclid Q1: SPE Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-spe-catalog/", source: tutorials/euclid/5_Euclid_intro_SPE_catalog.md, uses: [euclid.q1.spe-galaxy-candidates, euclid.q1.spe-line-features, euclid.q1.mer-catalog]}
+  - {title: "Euclid Q1 Merged Objects HATS Catalog: Introduction", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-intro/", source: tutorials/euclid/merged-objects-hats-catalog/1-euclid-q1-hats-intro.md, uses: [euclid.q1.merged-objects]}
+  - {title: "Euclid Q1 Merged Objects HATS Catalog: Magnitudes", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-magnitudes/", source: tutorials/euclid/merged-objects-hats-catalog/4-euclid-q1-hats-magnitudes.md, uses: [euclid.q1.merged-objects]}
+  - {title: "HATS with LSDB", url: "https://caltech-ipac.github.io/irsa-tutorials/irsa-hats-with-lsdb/", source: tutorials/techniques-and-tools/irsa-hats-with-lsdb.md, uses: [euclid.q1.merged-objects]}   # section "Techniques and Tools", not Euclid
+  - {title: "Euclid Q1: Cloud Access", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-cloud-access/", source: tutorials/euclid/euclid-cloud-access.md, uses: [euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
+  - {title: "Euclid Galaxy Clusters Analysis Tutorial", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-clusters-tutorial/", source: tutorials/euclid/euclid_clusters_tutorial.md, uses: [euclid.q1.mer-catalog, euclid.q1.phz-photo-z]}
+  - {title: "Exploring Star Clusters in the Euclid ERO Data", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-ero/", source: tutorials/euclid/Euclid_ERO.md, uses: [euclid.ero.stacks]}
 
 docs:
+  - {title: "IRSA Euclid tutorials", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid/", kind: tutorial_index}
   # Q1-only guide; its "coming soon" spectra/TAP statements are stale
   - {title: "Euclid Archive at IRSA User Guide", url: "https://irsa.ipac.caltech.edu/data/Euclid/docs/euclid_archive_at_irsa_user_guide.pdf", kind: user_guide, version: "2025-03-17"}
   - {title: "ESA Q1 Data Product Definitions", url: "https://euclid.esac.esa.int/dr/q1/dpdd/", kind: supplement}
