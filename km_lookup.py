@@ -27,7 +27,9 @@ def _read(relative_path, source):
 
 def load(mission, source=RAW_MAIN):
     """One mission file as a dict, e.g. load("euclid"). `source` is a base URL or a local folder."""
-    return _read(f"missions/{mission}.yaml", source)
+    mission_data = _read(f"missions/{mission}.yaml", source)
+    mission_data["_source"] = source   # so tutorials() reads irsa.yaml from the same place
+    return mission_data
 
 
 def services(source=RAW_MAIN):
@@ -64,13 +66,13 @@ def dataset(mission_data, collection, product):
     return None
 
 
-def tutorials(mission_data, collection=None, product=None, source=RAW_MAIN):
+def tutorials(mission_data, collection=None, product=None):
     """Tutorials that use a dataset (or all of the mission's), with `source_url` added.
 
     `url` is the published page; `source_url` is the raw notebook (MyST Markdown), built from
     irsa.yaml's tutorials.source_prefix + the tutorial's `source` path.
     """
-    prefix = _read("irsa.yaml", source)["tutorials"]["source_prefix"]
+    prefix = _read("irsa.yaml", mission_data.get("_source", RAW_MAIN))["tutorials"]["source_prefix"]
     wanted = None if product is None else f"{mission_data['mission']['id']}.{collection}.{product}"
     return [dict(tutorial, source_url=prefix + tutorial["source"])
             for tutorial in mission_data.get("tutorials") or []

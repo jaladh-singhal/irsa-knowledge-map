@@ -162,7 +162,7 @@ collections:
     aliases: [SPLICES]
     kind: ancillary
     status: available
-    released:                # file is dated 20241107; release notes 2024-11-20
+    released:                # TODO: IRSA release date not stated; the file is dated 20241107, release notes 2024-11-20
     cadence: once
     doi: 10.26131/IRSA554
     overview: https://irsa.ipac.caltech.edu/data/SPHEREx/SPLICES/

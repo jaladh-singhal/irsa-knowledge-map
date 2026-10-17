@@ -90,6 +90,8 @@ def check_url(url):
         if url.startswith(ibe_root):
             status, detail = check_s3(s3_root + url.removeprefix(ibe_root))
             return status, detail or "checked via S3 mirror"
+    if url.startswith(f"{IRSA}/ibe/data/"):
+        return "warn", "no S3 copy mapped for this /ibe/data/ path; add one to IBE_TO_S3"
     if url.startswith(IRSA) and not robots.can_fetch("*", url):
         return "skip", "disallowed by robots.txt"
     response = session.get(url, timeout=TIMEOUT, stream=True, allow_redirects=True)
@@ -149,7 +151,7 @@ def collect():
             url(f"{mission} tool {tool['name']}: docs", tool.get("docs"))
         for issue in mission_file.get("known_issues") or []:
             url(f"{mission} known issue {issue['title']}: link", issue.get("link"))
-        for tutorial in km_lookup.tutorials(mission_file, source=str(ROOT)):
+        for tutorial in km_lookup.tutorials(mission_file):
             url(f"{mission} tutorial: url", tutorial.get("url"))
             url(f"{mission} tutorial: source", tutorial["source_url"])
             checks.append((f"{mission} tutorial: listed", tutorial["source"], check_tutorial_listed, tutorial["source"]))
