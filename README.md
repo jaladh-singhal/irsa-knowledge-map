@@ -33,7 +33,7 @@ Read the files straight from GitHub:
 - `https://raw.githubusercontent.com/jaladh-singhal/irsa-knowledge-map/main/missions/<mission>.yaml` (`euclid`, `spherex`)
 - `https://raw.githubusercontent.com/jaladh-singhal/irsa-knowledge-map/main/irsa.yaml` (shared services)
 
-`km_lookup.py` is a small example helper for reading them. It needs only `pyyaml`, and reads GitHub by default or a local checkout:
+`km_lookup.py` is a small example helper for reading them. It needs only `pyyaml`, and reads GitHub by default or a local checkout. The [euclid-data-access skill](https://github.com/IPAC-SW/irsa-datascience/tree/main/irsa-skills/skills/euclid-data-access) bundles a copy in its `scripts/` folder (agents may refuse to run code downloaded at runtime), so **re-sync that copy whenever this file changes**:
 
 ```python
 from km_lookup import load, names, products, tutorials
@@ -144,6 +144,7 @@ python scripts/discover_facts.py
 - Euclid DR1 `released` (2026-10-21) comes from a search snippet only; verify it once DR1 is announced.
 - Whether SPHEREx QR2 still gets weekly ingest now that QR3 is live (`cadence`).
 - Graduate `km_lookup.py` to a pip-installable package once more than the skill and scripts use it (JB build, MCP server).
+- Remove the duplicate `km_lookup.py`: the euclid-data-access skill bundles a copy that must be re-synced by hand. Options: have the skill depend on the package above, or sync the copy automatically.
 - Whether CI may query `/ibe/data/` (robots.txt disallows crawlers there). Until decided, `browse` paths are checked via their S3 copy.
 
 ---
