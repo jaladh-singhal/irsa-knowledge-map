@@ -33,7 +33,7 @@ Read the files straight from GitHub:
 - `https://raw.githubusercontent.com/jaladh-singhal/irsa-knowledge-map/main/missions/<mission>.yaml` (`euclid`, `spherex`)
 - `https://raw.githubusercontent.com/jaladh-singhal/irsa-knowledge-map/main/irsa.yaml` (shared services)
 
-`km_lookup.py` is a small example helper for reading them. It needs only `pyyaml`, and reads GitHub by default or a local checkout. The [euclid-data-access skill](https://github.com/IPAC-SW/irsa-datascience/tree/main/irsa-skills/skills/euclid-data-access) bundles a copy in its `scripts/` folder (agents may refuse to run code downloaded at runtime), so **re-sync that copy whenever this file changes**:
+`km_lookup.py` is a small example helper for reading them. It needs only `pyyaml`, and reads GitHub by default, or a local checkout or branch via `source=` or the `KM_SOURCE` environment variable:
 
 ```python
 from km_lookup import load, names, products, tutorials
@@ -123,6 +123,11 @@ Two links are by name only and not checked: `{tokens}` in a file `pattern` corre
 5. For a new S3 bucket, add its `via: s3` entries (discovery only searches buckets the map already lists). For a new `/ibe/data/` folder, map it to its S3 copy in `IBE_TO_S3` in `scripts/validate_facts.py`, or validation warns that it can't check it.
 6. Add the release to the tutorials' `uses`, update the file listing under [How it's organized](#how-its-organized), and clear any Open TODO it resolves.
 
+**Changing the YAML's shape** (or moving this repo) means updating the code that reads it. Each reader is a thin lookup with no rules of its own:
+- `km_lookup.py`, used by `scripts/`;
+- its copy in the [euclid-data-access skill](https://github.com/IPAC-SW/irsa-datascience/tree/main/irsa-skills/skills/euclid-data-access)'s `scripts/` (re-sync by hand);
+- `plugins/src/km-lookup.mjs` in [euclid-archive-documentation](https://github.com/Caltech-IPAC/euclid-archive-documentation), the JupyterBook site's reader (same function names).
+
 **Adding a product.** Reuse the existing product key for the same product; declare a new key in `products` only for a new product. A shared key promises the same kind of product, not the same file layout or columns, which stay per dataset. A collection that lacks a product simply has no dataset for it. Tutorials filed under another mission's or a general section (e.g. "Techniques and Tools") have to be added by hand.
 
 ## Checks
@@ -143,8 +148,10 @@ python scripts/discover_facts.py
 
 - Euclid DR1 `released` (2026-10-21) comes from a search snippet only; verify it once DR1 is announced.
 - Whether SPHEREx QR2 still gets weekly ingest now that QR3 is live (`cadence`).
-- Graduate `km_lookup.py` to a pip-installable package once more than the skill and scripts use it (JB build, MCP server).
-- Remove the duplicate `km_lookup.py`: the euclid-data-access skill bundles a copy that must be re-synced by hand. Options: have the skill depend on the package above, or sync the copy automatically.
+- Unify the three readers (see [Editing it](#editing-it)), which today repeat the same lookups by hand. Options:
+  - Package `km_lookup.py` (pip), so the skill and other Python code depend on it instead of a copy.
+  - Publish the JavaScript reader the same way (npm), for JupyterBook sites.
+  - Have this repo's CI publish a flattened JSON index (one row per access entry: mission, collection, product, via, name), so every reader becomes a plain filter with almost no logic to duplicate.
 - Whether CI may query `/ibe/data/` (robots.txt disallows crawlers there). Until decided, `browse` paths are checked via their S3 copy.
 
 ---

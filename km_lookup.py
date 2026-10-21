@@ -7,9 +7,11 @@ another group of datasets (kind: ancillary, target_view, contributed). Dataset i
 has it, so `names(euclid, "q1", "mer-catalog", "tap")` and
 `names(euclid, "dr1", "mer-catalog", "tap")` ask for the same product in two releases.
 
-Needs only pyyaml. Reads the raw files from GitHub by default, or a local checkout.
+Needs only pyyaml. Reads the raw files from GitHub by default, or from `source` (a base URL or
+a local checkout), or from the KM_SOURCE environment variable if `source` isn't given.
 """
 
+import os
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -18,21 +20,27 @@ import yaml
 RAW_MAIN = "https://raw.githubusercontent.com/jaladh-singhal/irsa-knowledge-map/main/"
 
 
+def _source(source):
+    """`source` if given, else KM_SOURCE from the environment, else GitHub main."""
+    return source or os.environ.get("KM_SOURCE") or RAW_MAIN
+
+
 def _read(relative_path, source):
+    source = _source(source)
     if source.startswith(("http://", "https://")):
         with urlopen(source.rstrip("/") + "/" + relative_path) as response:
             return yaml.safe_load(response.read())
     return yaml.safe_load((Path(source) / relative_path).read_text())
 
 
-def load(mission, source=RAW_MAIN):
+def load(mission, source=None):
     """One mission file as a dict, e.g. load("euclid"). `source` is a base URL or a local folder."""
     mission_data = _read(f"missions/{mission}.yaml", source)
-    mission_data["_source"] = source   # so tutorials() reads irsa.yaml from the same place
+    mission_data["_source"] = _source(source)   # so tutorials() reads irsa.yaml from the same place
     return mission_data
 
 
-def services(source=RAW_MAIN):
+def services(source=None):
     """The shared services from irsa.yaml, keyed by `via` (e.g. "sia", "tap", "s3")."""
     return _read("irsa.yaml", source)["services"]
 
@@ -72,7 +80,7 @@ def tutorials(mission_data, collection=None, product=None):
     `url` is the published page; `source_url` is the raw notebook (MyST Markdown), built from
     irsa.yaml's tutorials.source_prefix + the tutorial's `source` path.
     """
-    prefix = _read("irsa.yaml", mission_data.get("_source", RAW_MAIN))["tutorials"]["source_prefix"]
+    prefix = _read("irsa.yaml", mission_data.get("_source"))["tutorials"]["source_prefix"]
     wanted = None if product is None else f"{mission_data['mission']['id']}.{collection}.{product}"
     return [dict(tutorial, source_url=prefix + tutorial["source"])
             for tutorial in mission_data.get("tutorials") or []
