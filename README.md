@@ -4,6 +4,8 @@ Simple YAML describing how to discover and access mission data at IRSA. It's mea
 
 For each mission it records which SIA collections, TAP tables, S3 prefixes, coverage maps (MOCs), DOIs, file patterns and tutorials belong to each data product, which releases are current, and what to watch out for. Service names, S3 prefixes and links are checked against IRSA's live services on every pull request and weekly; DOIs, dates and statuses are curated by hand.
 
+**For a quick read**, each mission has a generated summary of its releases and how to query each dataset: [Euclid](https://github.com/jaladh-singhal/irsa-knowledge-map/blob/generated/euclid.md), [SPHEREx](https://github.com/jaladh-singhal/irsa-knowledge-map/blob/generated/spherex.md). They double as the missions' [llms.txt](https://llmstxt.org) for AI assistants.
+
 ## What this is and isn't
 
 **IRSA's services are the source of truth for what exists.** An SIA/SSA collection or TAP table exists if `Irsa.list_collections()` / `Irsa.list_catalogs()` list it, and a path exists if S3 or IRSA serves it. This map doesn't override them: validation fails when a service name or S3 prefix it lists is missing live, and discovery reports what IRSA has that the map doesn't.
@@ -56,7 +58,7 @@ missions/
   euclid.yaml          # ERO, Q1, Q2, DR1 (planned)
   spherex.yaml         # QR3, QR2, QR1 (retired), DR1 (planned), SPLICES, 3I/ATLAS, lab spectral calibrations
 km_lookup.py           # example helper (see Using it)
-scripts/               # validate_facts.py, discover_facts.py (see Checks)
+scripts/               # validate_facts.py, discover_facts.py (see Checks), build_llms_txt.py
 ```
 
 A mission file has a `mission` block, a `products` list, and `collections`, each holding `datasets`, each listing `access` entries:
@@ -136,6 +138,7 @@ Two links are by name only and not checked: `{tokens}` in a file `pattern` corre
 ## Checks
 
 - **Validation** (`scripts/validate_facts.py`, on PRs that touch the data and weekly) checks every access entry live (TAP tables and SIA/SSA collections via astroquery, S3 and HATS prefixes via s3fs), that every link responds, that every product key is declared, that every tutorial, tool, identifier and doc has a unique `id` under its section, that no field is named after a service key, and that every tutorial is still listed in irsa-tutorials' `notebook_metadata.yml`. `/ibe/data/` paths are checked through their S3 copy, and URLs disallowed by IRSA's robots.txt are skipped. Failures are re-checked once after 30 s. Not checked: DOIs, dates, statuses, file patterns, `gui`/`script`/`cutout` entries, and access entries marked `status: planned`.
+- **Generated files** (`.github/workflows/publish-generated.yml`, on every push to main) rebuild the mission summaries with `scripts/build_llms_txt.py` and publish them to the `generated` branch, which only that workflow writes. JupyterBook sites download them as their `/llms.txt`.
 - **Discovery** (`scripts/discover_facts.py`, weekly) does the reverse: it lists SIA/SSA collections, TAP tables, the first two levels of S3 folders in buckets the map already lists, and notebooks in each mission's tutorial section that the map doesn't have yet, each with a YAML line ready to paste, in one rolling issue, "New IRSA facts to triage".
 
 To run them locally from the repo root (Python 3.9+, network access):
@@ -145,6 +148,7 @@ python3 -m venv .venv && source .venv/bin/activate       # first time: create; l
 pip install pyyaml requests astroquery s3fs             # first time only
 python scripts/validate_facts.py                        # add -v to list every check
 python scripts/discover_facts.py
+python scripts/build_llms_txt.py euclid --source .      # a mission's summary from your checkout, to stdout
 ```
 
 ## Open TODOs

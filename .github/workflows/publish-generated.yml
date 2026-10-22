@@ -1,0 +1,53 @@
+name: Publish generated files
+
+# Regenerate each mission's llms.txt summary from the map and publish it to the `generated`
+# branch, which only this workflow writes (one commit, replaced each run). main stays hand-edited.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "irsa.yaml"
+      - "missions/**"
+      - "km_lookup.py"
+      - "scripts/build_llms_txt.py"
+      - ".github/workflows/publish-generated.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: publish-generated
+
+jobs:
+  publish-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Generate
+        run: |
+          mkdir generated
+          for path in missions/*.yaml; do
+            mission=$(basename "$path" .yaml)
+            python scripts/build_llms_txt.py "$mission" --source . > "generated/$mission.md"
+          done
+          cat > generated/README.md <<EOF
+          # Generated files
+
+          Built from [main](https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}) by
+          \`.github/workflows/publish-generated.yml\`; don't edit them here.
+
+          Each mission's \`<mission>.md\` is its [llms.txt](https://llmstxt.org): a short summary for
+          AI assistants, readable here too, of the mission's releases and how to query each dataset.
+          EOF
+      - name: Push to the generated branch
+        working-directory: generated
+        run: |
+          git init -q -b generated
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Generated from ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}" generated
