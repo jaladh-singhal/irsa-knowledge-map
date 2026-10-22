@@ -4,17 +4,46 @@
 as_of: 2026-10-05
 
 services:
-  sia:    {name: Simple Image Access v2, endpoint: "https://irsa.ipac.caltech.edu/SIA?COLLECTION={name}", docs: "https://irsa.ipac.caltech.edu/ibe/sia.html", python: "astroquery Irsa.query_sia(collection=...)"}
-  ssa:    {name: Simple Spectral Access, endpoint: "https://irsa.ipac.caltech.edu/SSA?COLLECTION={name}", docs: "https://irsa.ipac.caltech.edu/ibe/ssa.html", python: "astroquery Irsa.query_ssa(collection=...)"}
-  tap:    {name: Table Access Protocol, endpoint: "https://irsa.ipac.caltech.edu/TAP", docs: "https://irsa.ipac.caltech.edu/docs/program_interface/TAP.html", python: "astroquery Irsa.query_tap(...) or pyvo"}
-  scs:    {name: Simple Cone Search, endpoint: "https://irsa.ipac.caltech.edu/SCS?table={name}", docs: "https://irsa.ipac.caltech.edu/docs/vo_scs.html"}
-  cutout: {name: IBE cutouts, usage: "append ?center=RA,DEC&size=DEG to an on-prem file URL", docs: "https://irsa.ipac.caltech.edu/ibe/cutouts.html"}
-  browse: {name: Browsable directories, docs: "https://irsa.ipac.caltech.edu/ibe/"}
-  s3:     {name: AWS S3 (Open Data), docs: "https://irsa.ipac.caltech.edu/cloud_access/"}
-  hats:   {name: HATS Parquet, docs: "https://irsa.ipac.caltech.edu/docs/parquet_catalogs/"}
-  gui:    {name: Mission Data Explorer / IRSA Viewer}
-  script: {name: Bulk download scripts (wget/curl)}
-  moc:    {name: MOC coverage maps, docs: "https://irsa.ipac.caltech.edu/data/MOC/", python: "mocpy MOC.from_fits(url)"}
+  sia:
+    name: Simple Image Access v2
+    endpoint: "https://irsa.ipac.caltech.edu/SIA?COLLECTION={name}"
+    docs: "https://irsa.ipac.caltech.edu/ibe/sia.html"
+    python: "astroquery Irsa.query_sia(collection=...)"
+  ssa:
+    name: Simple Spectral Access
+    endpoint: "https://irsa.ipac.caltech.edu/SSA?COLLECTION={name}"
+    docs: "https://irsa.ipac.caltech.edu/ibe/ssa.html"
+    python: "astroquery Irsa.query_ssa(collection=...)"
+  tap:
+    name: Table Access Protocol
+    endpoint: "https://irsa.ipac.caltech.edu/TAP"
+    docs: "https://irsa.ipac.caltech.edu/docs/program_interface/TAP.html"
+    python: "astroquery Irsa.query_tap(...) or pyvo"
+  scs:
+    name: Simple Cone Search
+    endpoint: "https://irsa.ipac.caltech.edu/SCS?table={name}"
+    docs: "https://irsa.ipac.caltech.edu/docs/vo_scs.html"
+  cutout:
+    name: IBE cutouts
+    usage: "append ?center=RA,DEC&size=DEG to an on-prem file URL"
+    docs: "https://irsa.ipac.caltech.edu/ibe/cutouts.html"
+  browse:
+    name: Browsable directories
+    docs: "https://irsa.ipac.caltech.edu/ibe/"
+  s3:
+    name: AWS S3 (Open Data)
+    docs: "https://irsa.ipac.caltech.edu/cloud_access/"
+  hats:
+    name: HATS Parquet
+    docs: "https://irsa.ipac.caltech.edu/docs/parquet_catalogs/"
+  gui:
+    name: Mission Data Explorer / IRSA Viewer
+  script:
+    name: Bulk download scripts (wget/curl)
+  moc:
+    name: MOC coverage maps
+    docs: "https://irsa.ipac.caltech.edu/data/MOC/"
+    python: "mocpy MOC.from_fits(url)"
 
 # Missions' tutorials refer to notebooks by `source` path in this repo.
 tutorials:
