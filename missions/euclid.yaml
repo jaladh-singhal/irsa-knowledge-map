@@ -111,8 +111,12 @@ collections:
     overview: https://irsa.ipac.caltech.edu/data/Euclid/docs/overview_q1.html
     notes:
       - "Fields: EDF-N, EDF-F, EDF-S, LDN1641 (LDN1641 has no EXT data)"
-      - "On-prem root https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/ (MD5 checksums under checksums/)"
+      - "MD5 checksums are under checksums/ in the on-prem root"
       - "Bulk download scripts are in the S3 bucket under q1/"
+    access:   # the release's roots
+      - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/euclid/q1/"}
+      - {via: s3, name: "nasa-irsa-euclid-q1/q1/"}
+      - {via: s3_browser, name: "https://nasa-irsa-euclid-q1.s3.us-east-1.amazonaws.com/index.html"}
     as_of: 2026-10-16
     datasets:
       # --- Images ---

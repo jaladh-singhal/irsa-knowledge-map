@@ -38,6 +38,10 @@ collections:
       - "Use caution combining with QR2 (different calibration)"
       - "More R7 weeks expected with DR1 (late fall 2026, per the Explanatory Supplement)"
     as_of: 2026-10-16
+    access:   # the release's roots
+      - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/"}
+      - {via: s3, name: "nasa-irsa-spherex/qr3/"}
+      - {via: s3_browser, name: "https://nasa-irsa-spherex.s3.us-east-1.amazonaws.com/index.html"}
     datasets:
       - id: spherex.qr3.spectral-images
         name: Spectral Image MEFs (wide)
@@ -103,6 +107,10 @@ collections:
       - "Use caution combining with QR3 (different calibration)"
       - "Pipeline versions 6.4 to 6.5.6; see the PSF header known issue"
     as_of: 2026-10-16
+    access:   # the release's roots
+      - {via: browse, name: "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/"}
+      - {via: s3, name: "nasa-irsa-spherex/qr2/"}
+      - {via: s3_browser, name: "https://nasa-irsa-spherex.s3.us-east-1.amazonaws.com/index.html"}
     datasets:
       - id: spherex.qr2.spectral-images
         name: Spectral Image MEFs (wide)

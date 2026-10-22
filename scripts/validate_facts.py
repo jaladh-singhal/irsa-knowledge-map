@@ -118,7 +118,7 @@ def check_tutorial_listed(source_path):
 
 
 ACCESS_CHECKS = {"tap": check_tap, "scs": check_tap, "sia": check_sia, "ssa": check_ssa,
-                 "s3": check_s3, "hats": check_s3, "browse": check_url, "moc": check_url}
+                 "s3": check_s3, "hats": check_s3, "browse": check_url, "moc": check_url, "s3_browser": check_url}
 
 
 # --- collect checks from the YAML
@@ -139,7 +139,10 @@ def collect():
             for dataset in collection.get("datasets") or []:
                 for doc in dataset.get("docs") or []:
                     url(f"{dataset['id']}: docs", doc)
-        for _, dataset, entry in km_lookup.iter_access(mission_file):
+        release_roots = [(collection, entry) for collection in mission_file.get("collections") or []
+                         for entry in collection.get("access") or []]
+        for owner, entry in release_roots + [(dataset, entry) for _, dataset, entry in km_lookup.iter_access(mission_file)]:
+            dataset = owner
             via, name = entry["via"], entry.get("name")
             if via not in ACCESS_CHECKS or not name or entry.get("status") == "planned":
                 continue

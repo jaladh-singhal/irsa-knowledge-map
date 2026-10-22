@@ -33,6 +33,9 @@ services:
   s3:
     name: AWS S3 (Open Data)
     docs: "https://irsa.ipac.caltech.edu/cloud_access/"
+  s3_browser:   # index.html IRSA puts at the root of each of its buckets, to browse it in a web browser
+    name: S3 bucket browser
+    docs: "https://irsa.ipac.caltech.edu/cloud_access/"
   hats:
     name: HATS Parquet
     docs: "https://irsa.ipac.caltech.edu/docs/parquet_catalogs/"
