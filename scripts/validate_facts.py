@@ -177,6 +177,40 @@ def check_product_keys():
     return results
 
 
+ID_SECTIONS = ("tutorials", "tools", "identifiers", "docs")
+
+
+def check_section_ids():
+    """Every entry of a mission's tutorials, tools, identifiers and docs needs a unique id, <mission>.<section>.<name>."""
+    results = []
+    for path in sorted((ROOT / "missions").glob("*.yaml")):
+        mission_file = km_lookup.load(path.stem, source=str(ROOT))
+        for section in ID_SECTIONS:
+            ids = [entry.get("id") for entry in mission_file.get(section) or []]
+            for entry_id in ids:
+                status, detail = (("fail", "missing `id`") if not entry_id
+                                  else ("fail", f"id must start with `{path.stem}.{section}.`")
+                                  if not entry_id.startswith(f"{path.stem}.{section}.")
+                                  else ("fail", "duplicate id") if ids.count(entry_id) > 1 else ("ok", ""))
+                results.append((f"{path.stem}.{section}: id", entry_id, status, detail))
+    return results
+
+
+def check_field_names():
+    """No mission, collection or dataset field may be named after a service key: {km}`tap <id>` reads `access`."""
+    service_keys = set(km_lookup.services(source=str(ROOT)))
+    results = []
+    for path in sorted((ROOT / "missions").glob("*.yaml")):
+        mission_file = km_lookup.load(path.stem, source=str(ROOT))
+        entities = [mission_file["mission"]]
+        for collection in mission_file.get("collections") or []:
+            entities += [collection, *(collection.get("datasets") or [])]
+        for entity in entities:
+            clashes = sorted(service_keys & set(entity))
+            status, detail = ("fail", "field named after a service key") if clashes else ("ok", "")
+            results.append((f"{entity['id']}: field names", ", ".join(clashes) or "-", status, detail))
+    return results
+
 def run(check):
     where, what, func, arg = check
     try:
@@ -211,7 +245,7 @@ def main(argv=None):
                     status, detail = "warn", f"passed on re-check; first try: {results[i][3]}"
                 results[i] = (where, what, status, detail)
 
-    results = check_product_keys() + results   # structural, no network: never re-checked
+    results = check_product_keys() + check_section_ids() + check_field_names() + results   # structural, no network: never re-checked
 
     by_status = {status: [result for result in results if result[2] == status]
                  for status in ("ok", "warn", "fail", "skip")}

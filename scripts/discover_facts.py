@@ -90,7 +90,8 @@ def discover():
                         stubs.append(f'- {{via: s3, name: "{path}"}}  # S3 prefix not in the knowledge map')
         for notebook in notebooks:
             if notebook.get("section", "").lower() == mission_name and notebook["file"] not in known_sources:
-                stubs.append(f'- {{title: "{notebook["title"]}", url: "{page_url(notebook["file"])}", '
+                url = page_url(notebook["file"])
+                stubs.append(f'- {{id: {mission}.tutorials.{url.rstrip("/").rsplit("/", 1)[-1]}, title: "{notebook["title"]}", url: "{url}", '
                              f'source: {notebook["file"]}, uses: []}}  # new tutorial: fill in `uses`')
         report[mission] = stubs
     return report

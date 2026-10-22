@@ -408,38 +408,38 @@ collections:
           - {via: moc, name: "https://irsa.ipac.caltech.edu/data/MOC/euclid_planned_coverage.moc.fits", note: "Full planned survey"}
 
 identifiers:
-  - {name: TILE ID, example: "102018211", description: "9-digit MER tile; organizes MER products"}
-  - {name: Observation ID, example: "2681", description: "Organizes Q1 VIS/NIR frame directories; zero-padded to 6 characters in Q2 filenames (e.g. 067070)"}
-  - {name: object_id, description: "Join key across MER, PHZ, SPE catalogs and the HATS merged objects"}
-  - {name: SIA obs_id, description: "Tile ID + instrument; tile ID can be derived from it (T05)"}
+  - {id: euclid.identifiers.tile-id, name: TILE ID, example: "102018211", description: "9-digit MER tile; organizes MER products"}
+  - {id: euclid.identifiers.observation-id, name: Observation ID, example: "2681", description: "Organizes Q1 VIS/NIR frame directories; zero-padded to 6 characters in Q2 filenames (e.g. 067070)"}
+  - {id: euclid.identifiers.object-id, name: object_id, description: "Join key across MER, PHZ, SPE catalogs and the HATS merged objects"}
+  - {id: euclid.identifiers.sia-obs-id, name: SIA obs_id, description: "Tile ID + instrument; tile ID can be derived from it (T05)"}
 
 tools:
-  - {name: Euclid Data Explorer, url: "https://irsa.ipac.caltech.edu/applications/euclid", docs: "https://irsa.ipac.caltech.edu/onlinehelp/euclid/euclid/overview.html", use_for: "Search Q1 data by position, Tile ID or Object ID"}
-  - {name: Gator (Euclid), url: "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?projshort=Euclid", use_for: "Catalog search"}
-  - {name: splitsci.py, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/splitsci.py", use_for: "Split Q2 DET files into SCI/FLG/RMS"}
-  - {name: integrity_check.sh, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/integrity_check.sh", use_for: "Verify Q2 downloads against checksums.sha256"}
-  - {name: EuclidExtractor, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/EuclidExtractor/", use_for: "Compute the Q2 PSFEx PSF model for chosen options (see Euclid_data_extraction.ipynb)"}
+  - {id: euclid.tools.data-explorer, name: Euclid Data Explorer, url: "https://irsa.ipac.caltech.edu/applications/euclid", docs: "https://irsa.ipac.caltech.edu/onlinehelp/euclid/euclid/overview.html", use_for: "Search Q1 data by position, Tile ID or Object ID"}
+  - {id: euclid.tools.gator, name: Gator (Euclid), url: "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?projshort=Euclid", use_for: "Catalog search"}
+  - {id: euclid.tools.splitsci, name: splitsci.py, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/splitsci.py", use_for: "Split Q2 DET files into SCI/FLG/RMS"}
+  - {id: euclid.tools.integrity-check, name: integrity_check.sh, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/integrity_check.sh", use_for: "Verify Q2 downloads against checksums.sha256"}
+  - {id: euclid.tools.euclid-extractor, name: EuclidExtractor, url: "https://irsa.ipac.caltech.edu/data/Euclid/q2/EuclidExtractor/", use_for: "Compute the Q2 PSFEx PSF model for chosen options (see Euclid_data_extraction.ipynb)"}
 
 known_issues: []   # Data Explorer limitations page is linked under docs; its availability claims are stale
 
 tutorials:
-  - {title: "Euclid Q1: MER Mosaics", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-images/", source: tutorials/euclid/1_Euclid_intro_MER_images.md, uses: [euclid.q1.mer-mosaic]}
-  - {title: "Euclid Q1: MER Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-catalog/", source: tutorials/euclid/2_Euclid_intro_MER_catalog.md, uses: [euclid.q1.mer-catalog]}
-  - {title: "Euclid Q1: SIR 1D Spectra", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-1d-spectra/", source: tutorials/euclid/3_Euclid_intro_1D_spectra.md, uses: [euclid.q1.sir-spectra]}
-  - {title: "Euclid Q1: PHZ Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-phz-catalog/", source: tutorials/euclid/4_Euclid_intro_PHZ_catalog.md, uses: [euclid.q1.phz-photo-z, euclid.q1.mer-catalog, euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
-  - {title: "Euclid Q1: SPE Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-spe-catalog/", source: tutorials/euclid/5_Euclid_intro_SPE_catalog.md, uses: [euclid.q1.spe-galaxy-candidates, euclid.q1.spe-line-features, euclid.q1.mer-catalog]}
-  - {title: "Euclid Q1 Merged Objects HATS Catalog: Introduction", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-intro/", source: tutorials/euclid/merged-objects-hats-catalog/1-euclid-q1-hats-intro.md, uses: [euclid.q1.merged-objects]}
-  - {title: "Euclid Q1 Merged Objects HATS Catalog: Magnitudes", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-magnitudes/", source: tutorials/euclid/merged-objects-hats-catalog/4-euclid-q1-hats-magnitudes.md, uses: [euclid.q1.merged-objects]}
-  - {title: "HATS with LSDB", url: "https://caltech-ipac.github.io/irsa-tutorials/irsa-hats-with-lsdb/", source: tutorials/techniques-and-tools/irsa-hats-with-lsdb.md, uses: [euclid.q1.merged-objects]}   # section "Techniques and Tools", not Euclid
-  - {title: "Euclid Q1: Cloud Access", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-cloud-access/", source: tutorials/euclid/euclid-cloud-access.md, uses: [euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
-  - {title: "Euclid Galaxy Clusters Analysis Tutorial", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-clusters-tutorial/", source: tutorials/euclid/euclid_clusters_tutorial.md, uses: [euclid.q1.mer-catalog, euclid.q1.phz-photo-z]}
-  - {title: "Exploring Star Clusters in the Euclid ERO Data", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-ero/", source: tutorials/euclid/Euclid_ERO.md, uses: [euclid.ero.stacks]}
+  - {id: euclid.tutorials.euclid-intro-mer-images, title: "Euclid Q1: MER Mosaics", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-images/", source: tutorials/euclid/1_Euclid_intro_MER_images.md, uses: [euclid.q1.mer-mosaic]}
+  - {id: euclid.tutorials.euclid-intro-mer-catalog, title: "Euclid Q1: MER Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-mer-catalog/", source: tutorials/euclid/2_Euclid_intro_MER_catalog.md, uses: [euclid.q1.mer-catalog]}
+  - {id: euclid.tutorials.euclid-intro-1d-spectra, title: "Euclid Q1: SIR 1D Spectra", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-1d-spectra/", source: tutorials/euclid/3_Euclid_intro_1D_spectra.md, uses: [euclid.q1.sir-spectra]}
+  - {id: euclid.tutorials.euclid-intro-phz-catalog, title: "Euclid Q1: PHZ Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-phz-catalog/", source: tutorials/euclid/4_Euclid_intro_PHZ_catalog.md, uses: [euclid.q1.phz-photo-z, euclid.q1.mer-catalog, euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
+  - {id: euclid.tutorials.euclid-intro-spe-catalog, title: "Euclid Q1: SPE Catalogs", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-intro-spe-catalog/", source: tutorials/euclid/5_Euclid_intro_SPE_catalog.md, uses: [euclid.q1.spe-galaxy-candidates, euclid.q1.spe-line-features, euclid.q1.mer-catalog]}
+  - {id: euclid.tutorials.euclid-q1-hats-intro, title: "Euclid Q1 Merged Objects HATS Catalog: Introduction", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-intro/", source: tutorials/euclid/merged-objects-hats-catalog/1-euclid-q1-hats-intro.md, uses: [euclid.q1.merged-objects]}
+  - {id: euclid.tutorials.euclid-q1-hats-magnitudes, title: "Euclid Q1 Merged Objects HATS Catalog: Magnitudes", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-q1-hats-magnitudes/", source: tutorials/euclid/merged-objects-hats-catalog/4-euclid-q1-hats-magnitudes.md, uses: [euclid.q1.merged-objects]}
+  - {id: euclid.tutorials.irsa-hats-with-lsdb, title: "HATS with LSDB", url: "https://caltech-ipac.github.io/irsa-tutorials/irsa-hats-with-lsdb/", source: tutorials/techniques-and-tools/irsa-hats-with-lsdb.md, uses: [euclid.q1.merged-objects]}   # section "Techniques and Tools", not Euclid
+  - {id: euclid.tutorials.euclid-cloud-access, title: "Euclid Q1: Cloud Access", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-cloud-access/", source: tutorials/euclid/euclid-cloud-access.md, uses: [euclid.q1.mer-mosaic, euclid.q1.sir-spectra]}
+  - {id: euclid.tutorials.euclid-clusters-tutorial, title: "Euclid Galaxy Clusters Analysis Tutorial", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-clusters-tutorial/", source: tutorials/euclid/euclid_clusters_tutorial.md, uses: [euclid.q1.mer-catalog, euclid.q1.phz-photo-z]}
+  - {id: euclid.tutorials.euclid-ero, title: "Exploring Star Clusters in the Euclid ERO Data", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid-ero/", source: tutorials/euclid/Euclid_ERO.md, uses: [euclid.ero.stacks]}
 
 docs:
-  - {title: "IRSA Euclid tutorials", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid/", kind: tutorial_index}
+  - {id: euclid.docs.tutorials-index, title: "IRSA Euclid tutorials", url: "https://caltech-ipac.github.io/irsa-tutorials/euclid/", kind: tutorial_index}
   # Q1-only guide; its "coming soon" spectra/TAP statements are stale
-  - {title: "Euclid Archive at IRSA User Guide", url: "https://irsa.ipac.caltech.edu/data/Euclid/docs/euclid_archive_at_irsa_user_guide.pdf", kind: user_guide, version: "2025-03-17"}
-  - {title: "ESA Q1 Data Product Definitions", url: "https://euclid.esac.esa.int/dr/q1/dpdd/", kind: supplement}
-  - {title: "Euclid Q2 paper", url: "https://arxiv.org/abs/2606.25883", kind: paper}
+  - {id: euclid.docs.user-guide, title: "Euclid Archive at IRSA User Guide", url: "https://irsa.ipac.caltech.edu/data/Euclid/docs/euclid_archive_at_irsa_user_guide.pdf", kind: user_guide, version: "2025-03-17"}
+  - {id: euclid.docs.esa-dpdd, title: "ESA Q1 Data Product Definitions", url: "https://euclid.esac.esa.int/dr/q1/dpdd/", kind: supplement}
+  - {id: euclid.docs.q2-paper, title: "Euclid Q2 paper", url: "https://arxiv.org/abs/2606.25883", kind: paper}
   # Its Known Limitations (spectra/catalogs not in SSA/TAP) are stale
-  - {title: "Euclid Data Explorer known issues", url: "https://irsa.ipac.caltech.edu/docs/known_issues/euclidbugslist.html", kind: erratum}
+  - {id: euclid.docs.data-explorer-known-issues, title: "Euclid Data Explorer known issues", url: "https://irsa.ipac.caltech.edu/docs/known_issues/euclidbugslist.html", kind: erratum}

@@ -96,8 +96,10 @@ Solid arrows are nesting in the YAML; dotted arrows are references by id or key.
 - **Collections** group a mission's datasets. Each has a `kind`: `release` (Euclid Q1, SPHEREx QR3, …), `ancillary` (supporting data, e.g. SPLICES), `target_view` (one target's observations, e.g. 3I/ATLAS) or `contributed` (products made by others). Its `status` is `available`, `partial` (still being rolled out), `planned` or `retired`, and `cadence` is `once` or `weekly` (rolling releases).
 - **Dataset ids** are `<mission>.<collection>.<product>`, e.g. `euclid.q1.mer-catalog`. A dataset usually holds one TAP table; tables shared across releases (e.g. SPHEREx's `spherex.plane`) are repeated in each release's dataset.
 - **Product keys** stay the same in every collection that has the product, so code can ask for "the `mer-catalog` of release X" without knowing each release's table names. Each mission declares its keys in `products`.
-- **Access entries** are `{via, name}`: `via` is a service key from `irsa.yaml` (`sia`, `tap`, `s3`, `moc`, …) and `name` is what that service calls the product.
+- **Access entries** are `{via, name}`: `via` is a service key from `irsa.yaml` (`sia`, `tap`, `s3`, `moc`, …) and `name` is what that service calls the product. Readers can treat a service key as a dataset field (the JupyterBook plugin's `` {km}`tap euclid.q1.mer-catalog` `` reads `access`), so no mission, collection or dataset field may be named after a service key; validation checks this.
 - **Tutorials** are IRSA's CI-tested notebooks, the most current source for *how* to access a product. Each has its page `url`, a `source` path in [irsa-tutorials](https://github.com/Caltech-IPAC/irsa-tutorials) (`irsa.yaml`'s `tutorials.source_prefix` + `source` is the raw notebook), and `uses`, the datasets it demonstrates.
+
+Entries in `tutorials`, `tools`, `identifiers` and `docs` each have an `id` too, its path like a dataset's, so anything can be referred to the same way (e.g. `euclid.tools.gator`); a tutorial's id ends in its page's slug.
 
 Two links are by name only and not checked: `{tokens}` in a file `pattern` correspond to `identifiers` (e.g. `{planning_period}`), and `via: gui` entries usually name a tool from `tools`.
 
@@ -132,7 +134,7 @@ Two links are by name only and not checked: `{tokens}` in a file `pattern` corre
 
 ## Checks
 
-- **Validation** (`scripts/validate_facts.py`, on PRs that touch the data and weekly) checks every access entry live (TAP tables and SIA/SSA collections via astroquery, S3 and HATS prefixes via s3fs), that every link responds, that every product key is declared, and that every tutorial is still listed in irsa-tutorials' `notebook_metadata.yml`. `/ibe/data/` paths are checked through their S3 copy, and URLs disallowed by IRSA's robots.txt are skipped. Failures are re-checked once after 30 s. Not checked: DOIs, dates, statuses, file patterns, `gui`/`script`/`cutout` entries, and access entries marked `status: planned`.
+- **Validation** (`scripts/validate_facts.py`, on PRs that touch the data and weekly) checks every access entry live (TAP tables and SIA/SSA collections via astroquery, S3 and HATS prefixes via s3fs), that every link responds, that every product key is declared, that every tutorial, tool, identifier and doc has a unique `id` under its section, that no field is named after a service key, and that every tutorial is still listed in irsa-tutorials' `notebook_metadata.yml`. `/ibe/data/` paths are checked through their S3 copy, and URLs disallowed by IRSA's robots.txt are skipped. Failures are re-checked once after 30 s. Not checked: DOIs, dates, statuses, file patterns, `gui`/`script`/`cutout` entries, and access entries marked `status: planned`.
 - **Discovery** (`scripts/discover_facts.py`, weekly) does the reverse: it lists SIA/SSA collections, TAP tables, the first two levels of S3 folders in buckets the map already lists, and notebooks in each mission's tutorial section that the map doesn't have yet, each with a YAML line ready to paste, in one rolling issue, "New IRSA facts to triage".
 
 To run them locally from the repo root (Python 3.9+, network access):
@@ -152,6 +154,7 @@ python scripts/discover_facts.py
   - Package `km_lookup.py` (pip), so the skill and other Python code depend on it instead of a copy.
   - Publish the JavaScript reader the same way (npm), for JupyterBook sites.
   - Have this repo's CI publish a flattened JSON index (one row per access entry: mission, collection, product, via, name), so every reader becomes a plain filter with almost no logic to duplicate.
+- Access entries' `name` (what the service calls the dataset) shares its key with a dataset's display `name`; consider renaming it (e.g. `as`), which means updating all three readers.
 - Whether CI may query `/ibe/data/` (robots.txt disallows crawlers there). Until decided, `browse` paths are checked via their S3 copy.
 
 ---
